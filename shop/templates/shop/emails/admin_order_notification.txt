@@ -1,0 +1,28 @@
+Bdcrafter.com - New Order
+Order Number: {{ order.order_number }}
+
+CUSTOMER
+Name: {{ order.first_name }} {{ order.last_name }}
+Email: {{ order.email }}
+Phone: {{ order.phone }}
+Payment: {{ order.payment_method }}
+
+SHIPPING ADDRESS
+{{ order.shipping_address }}
+{{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}
+{{ order.shipping_country }}
+
+{% if order.note %}ORDER NOTE
+{{ order.note }}
+
+{% endif %}ITEMS
+{% for item in order.items.all %}- {{ item.product_name|default:item.product.name }}{% if item.variant_name %} ({{ item.variant_name }}){% endif %}
+  Quantity: {{ item.quantity }} | Unit price: Tk {{ item.unit_price }} | Total: Tk {{ item.total_price }}
+{% endfor %}
+Subtotal: Tk {{ order.get_subtotal }}
+{% if order.discount > 0 %}Discount: -Tk {{ order.discount }}
+{% endif %}{% if order.shipping_cost > 0 %}Shipping: Tk {{ order.shipping_cost }}
+{% endif %}Total: Tk {{ order.total }}
+
+Status: {{ order.status|capfirst }}
+Placed on {{ order.created_at|date:"F j, Y \\a\\t g:i A" }}

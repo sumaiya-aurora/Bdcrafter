@@ -1,0 +1,86 @@
+<USER_REQUEST>
+You are a senior full-stack engineer and UI/UX specialist. Your job is to audit, fix, and test my entire e-commerce website so it is production-ready and looks professional. Work through the whole project folder, run it locally, and do not stop until every item below is done and verified.
+
+## STEP 0 — Understand the project first
+- Read the project structure, package.json / requirements, README, env files, and database setup.
+- Install dependencies and run the project locally. Note the stack (frontend, backend, DB) before changing anything.
+- Make a short list of everything that is missing or broken for a professional e-commerce site, in addition to the issues I list below. Fix those too.
+
+## STEP 1 — Full responsiveness (mobile + all devices)
+The site is currently NOT mobile responsive. Fix it completely.
+- Test and fix at these widths: 320, 375, 414, 768, 1024, 1280, 1536px.
+- Use a mobile-first approach (flexible grids, relative units, proper breakpoints, no horizontal scroll, no overflowing text/images).
+- Navbar must collapse into a clean mobile menu (hamburger / drawer). Cart icon and search must remain usable.
+- Tap targets at least 44px, readable font sizes, proper spacing on touch devices.
+- Images must be responsive (srcset / object-fit / lazy loading).
+- Make sure the viewport meta tag is correct.
+
+## STEP 2 — Page-by-page UX audit
+Go through EVERY page as a real user and check layout, responsiveness, spacing, and usability:
+- Home, shop / product listing (filters, sorting, pagination), single product page (gallery, price, variants, quantity, add to cart, related products), cart, checkout, order success / thank-you page, contact, about, and any other page that exists.
+- Check: broken links, missing images, empty states, loading states, error messages, form validation, button states, 404 page, consistent header/footer.
+- Fix every UX problem you find. Keep a list of what you found and what you changed.
+
+## STEP 3 — Guest checkout (no login required)
+- Remove the mandatory login / registration requirement for placing an order. Customers must be able to order as a guest.
+- Checkout form fields: full name, phone, email, address (city/area), order note (optional), payment method.
+- Validate inputs on both client and server (phone, email, required fields).
+- Login/signup can stay as an optional feature, but must never block ordering.
+
+## STEP 4 — Order flow, admin notification, and emails
+When a customer places an order:
+1. Save the order in the database with a unique order number, items, quantities, prices, totals, customer info, status = "Pending", and timestamp.
+2. The order must appear immediately in the admin panel as a new order request (with a visible "New" indicator / badge, and ideally a notification count).
+3. Send an email to ME (the store owner/admin) with full order details: order number, customer info, items, totals, payment method, address.
+4. Send an invoice email to the CUSTOMER's email: professional HTML invoice with logo, order number, date, itemized list, subtotal, shipping, total, and store contact info.
+5. Use SMTP via environment variables (Nodemailer or equivalent). Do not hardcode credentials. Add a `.env.example` listing all needed variables (SMTP host, port, user, password, ADMIN_EMAIL, FROM_EMAIL).
+6. If email sending fails, the order must still be saved, and the error must be logged (do not break checkout).
+
+## STEP 5 — Custom admin panel redesign
+- Redesign the admin panel with a custom design, NOT a default or template look.
+- Match it to the homepage design language: same color palette, fonts, buttons, border radius, shadows.
+- Include a clean dashboard: total orders, pending orders, revenue, recent orders, low-stock items.
+- Orders page: list with search, filter by status, order detail view, status update (Pending → Confirmed → Shipped → Delivered / Cancelled), print invoice.
+- Products management: add / edit / delete, images, price, stock, category.
+- The admin panel must be fully responsive on mobile and tablet (collapsible sidebar, scrollable/stacked tables or card view on small screens).
+- Admin routes must be protected by authentication.
+
+## STEP 6 — Overall design refresh
+- Subtly refine the color combination, typography, spacing, and component styles to look clean, modern, and professional. Do a light refresh, not a total rebuild.
+- Define a consistent design system (CSS variables / theme file): primary, secondary, accent, neutral colors, font scale, spacing scale, button and card styles.
+- Ensure good contrast and accessibility (alt text, labels, focus states).
+- Keep the brand identity recognizable.
+
+## STEP 7 — Other professional must-haves (check and add if missing)
+- SEO basics: page titles, meta descriptions, Open Graph tags, favicon, sitemap/robots.
+- Performance: image optimization, minified assets, no unused code, fast load.
+- Security: input sanitization, CSRF/XSS protection, rate limiting on forms, secure admin auth, env-based secrets.
+- Trust elements: footer links, contact info, return/privacy/terms pages, WhatsApp / social links.
+- Cart persistence (localStorage or server), stock validation, shipping cost logic, order confirmation page.
+
+## STEP 8 — End-to-end testing (mandatory)
+After all changes, run the full site and actually test it:
+1. Place a guest order from the frontend with realistic test data (without logging in).
+2. Verify the order is saved in the database.
+3. Verify it appears in the admin panel with the correct details and status "Pending".
+4. Change the status in admin and confirm it updates.
+5. Verify the admin notification email and customer invoice email are triggered (use a test SMTP such as Mailtrap/Ethereal if real credentials are not available, and show the result).
+6. Re-test all key pages at mobile (375px), tablet (768px), and desktop (1280px) using a headless browser / screenshots (Playwright or Puppeteer if available).
+7. Fix any bug found during testing and re-test until everything passes.
+
+## Final deliverable
+At the end, give me a clear report:
+- What was lacking/broken (list)
+- What you fixed or added (list)
+- Test results (what passed, what could not be tested and why)
+- Setup steps I must do (e.g., set SMTP credentials in .env, run migrations)
+- Any remaining recommendations
+
+Do not skip steps. Do not just describe the changes — actually implement them in the code and verify by running the project.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-04T08:51:20+06:00.
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Gemini 3.8 Flash (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

@@ -1,0 +1,166 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{% if is_edit %}Edit {{ product.name }}{% else %}Add Product{% endif %}{% endblock %}
+{% block topbar_title %}{% if is_edit %}Edit Product{% else %}Add New Product{% endif %}{% endblock %}
+
+{% block content %}
+<div style="max-width:860px;margin:0 auto;">
+    <!-- Top actions -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+            <h1 style="font-size:1.5rem;font-weight:800;margin:0;">
+                {% if is_edit %}Edit: {{ product.name }}{% else %}Add New Product{% endif %}
+            </h1>
+            <p style="color:var(--muted);font-size:.875rem;margin:.25rem 0 0;">
+                {% if is_edit %}Update product details, pricing, inventory, and images.{% else %}Create a new product in your catalog.{% endif %}
+            </p>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+            <a href="{% url 'admin_panel:products' %}" class="btn btn-ghost btn-sm">Back to Products</a>
+            {% if is_edit %}
+            <a href="{% url 'shop:product_detail' product.slug %}" target="_blank" class="btn btn-ghost btn-sm">View in Store</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="card admin-product-form" style="padding:2rem;">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="toast toast-error" style="margin-bottom:1.5rem;">
+            <strong>Please correct the errors below:</strong>
+            <ul style="margin:.5rem 0 0;padding-left:1.25rem;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;" id="product-form-grid">
+            
+            <!-- Basic details -->
+            <div>
+                <label class="form-label" for="id_name">Product Name *</label>
+                {{ form.name }}
+            </div>
+
+            <!-- Category & Brand -->
+            <div class="product-category-brand" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;">
+                <div>
+                    <label class="form-label" for="id_category">Category</label>
+                    {{ form.category }}
+                </div>
+                <div>
+                    <label class="form-label" for="id_brand">Brand</label>
+                    {{ form.brand }}
+                </div>
+            </div>
+
+            <!-- Pricing & Inventory -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:1rem;">
+                <div>
+                    <label class="form-label" for="id_currency">Currency</label>
+                    {{ form.currency }}
+                </div>
+                <div>
+                    <label class="form-label" for="id_price">Regular Price *</label>
+                    {{ form.price }}
+                </div>
+                <div>
+                    <label class="form-label" for="id_sale_price">Sale Price</label>
+                    {{ form.sale_price }}
+                    <small style="color:var(--muted);font-size:.75rem;">Leave empty if not on discount</small>
+                </div>
+                <div>
+                    <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-weight:600;font-size:.9rem;margin-top:1.75rem;">
+                        {{ form.price_on_request }}
+                        <span>Price on request</span>
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label" for="id_stock">Stock Quantity *</label>
+                    {{ form.stock }}
+                </div>
+                <div>
+                    <label class="form-label" for="id_sku">SKU Code</label>
+                    {{ form.sku }}
+                </div>
+            </div>
+
+            <!-- Product and featured images -->
+            <div style="background:var(--bg);padding:1.25rem;border-radius:.75rem;border:1px dashed var(--border);">
+                <label class="form-label" style="margin-bottom:.5rem;">Product Image</label>
+                {% if is_edit and product.primary_image %}
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                    <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" style="width:72px;height:72px;object-fit:cover;border-radius:.5rem;border:1px solid var(--border);">
+                    <div style="font-size:.8125rem;color:var(--muted);">
+                        Current primary image. Upload a new image below to replace it.
+                    </div>
+                </div>
+                {% endif %}
+                <input type="file" name="image" id="id_image" accept="image/*" class="form-control" style="background:#fff;">
+                <label class="form-label" for="id_featured_image" style="margin:.875rem 0 .5rem;">Featured Image</label>
+                {% if is_edit and product.featured_image %}
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                    <img src="{{ product.featured_image.image.url }}" alt="{{ product.name }} featured image" style="width:72px;height:72px;object-fit:cover;border-radius:.5rem;border:1px solid var(--border);">
+                    <div style="font-size:.8125rem;color:var(--muted);">Current featured image. Upload a new one to replace it.</div>
+                </div>
+                {% endif %}
+                <input type="file" name="featured_image" id="id_featured_image" accept="image/*" class="form-control" style="background:#fff;">
+            </div>
+
+            <!-- Descriptions -->
+            <div>
+                <label class="form-label" for="id_short_description">Short Description</label>
+                {{ form.short_description }}
+            </div>
+
+            <div>
+                <label class="form-label" for="id_description">Full Description</label>
+                {{ form.description }}
+            </div>
+
+            <!-- Status & Flags -->
+            <div style="display:flex;align-items:center;gap:2rem;padding-top:.5rem;border-top:1px solid var(--border);">
+                <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-weight:600;font-size:.9rem;">
+                    {{ form.published }}
+                    <span>Published (Visible in store)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-weight:600;font-size:.9rem;">
+                    {{ form.featured }}
+                    <span>Featured Product</span>
+                </label>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="product-form-actions" style="display:flex;align-items:center;justify-content:space-between;padding-top:1.5rem;border-top:1px solid var(--border);margin-top:1rem;">
+                <div>
+                    {% if is_edit %}
+                    <a href="{% url 'admin_panel:product_delete' product.id %}" class="btn btn-danger btn-sm">Delete Product</a>
+                    {% endif %}
+                </div>
+                <div style="display:flex;gap:.75rem;">
+                    <a href="{% url 'admin_panel:products' %}" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="padding:.625rem 2rem;">
+                        {% if is_edit %}Save Changes{% else %}Create Product{% endif %}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+<style>
+@media (max-width: 640px) {
+    .admin-product-form { padding:1rem !important; }
+    .product-category-brand { grid-template-columns:1fr !important; }
+    .admin-product-form #product-form-grid > div,
+    .product-category-brand > div,
+    .admin-product-form .form-control { min-width:0; max-width:100%; }
+    .admin-product-form .form-control { width:100%; }
+    .product-form-actions { flex-wrap:wrap; justify-content:flex-start !important; gap:.75rem; }
+}
+</style>
+{% endblock %}

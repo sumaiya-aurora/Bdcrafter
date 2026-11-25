@@ -1,0 +1,32 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Page Not Found (404) — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-4 py-20 text-center">
+    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-50 text-emerald-600 text-4xl mb-6 shadow-sm">
+        {% include 'shop/includes/icon.html' with icon='search' %}
+    </div>
+    <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">404 — Page Not Found</h1>
+    <p class="text-base md:text-lg text-slate-600 mb-8 max-w-md mx-auto">
+        Oops! The page you are looking for doesn't exist or may have been moved.
+    </p>
+
+    <!-- Search form -->
+    <form action="{% url 'shop:search' %}" method="get" class="max-w-md mx-auto flex gap-2 mb-8">
+        <input type="text" name="q" placeholder="Search products and services..." class="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none" required>
+        <button type="submit" class="bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm">
+            Search
+        </button>
+    </form>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="{% url 'shop:home' %}" class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 transition shadow-md shadow-emerald-600/20">
+            <span>{% include 'shop/includes/icon.html' with icon='home' %} Back to Home</span>
+        </a>
+        <a href="{% url 'shop:product_list' %}" class="inline-flex items-center gap-2 border border-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-xl hover:bg-slate-50 transition">
+            <span>{% include 'shop/includes/icon.html' with icon='bag' %} Browse Catalog</span>
+        </a>
+    </div>
+</section>
+{% endblock %}

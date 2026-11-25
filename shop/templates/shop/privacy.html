@@ -1,0 +1,36 @@
+{% extends 'shop/base.html' %}
+{% block title %}Privacy Policy — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Read how Bdcrafter.com handles customer information when you browse the store, place an order, or contact support.{% endblock %}
+{% block og_title %}Privacy Policy | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}Read how Bdcrafter.com handles customer information when you browse the store, place an order, or contact support.{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+    <h1 style="font-size:2rem;font-weight:800;margin:0 0 .5rem;">Privacy Policy</h1>
+    <p style="color:var(--text-muted);font-size:.875rem;margin:0 0 2.5rem;">Last updated: October 2026</p>
+    {% for section in "." %}<div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">1. Information We Collect</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">We collect information you provide when placing orders (name, email, phone, shipping address) and browsing data (pages visited, browser type). We do not sell your personal information to third parties.</p>
+    </div>{% endfor %}
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">2. How We Use Your Information</h2>
+        <ul style="color:var(--text-muted);line-height:1.9;margin:0;padding-left:1.5rem;">
+            <li>Process and deliver your orders</li>
+            <li>Send order confirmation and shipping updates</li>
+            <li>Respond to customer service inquiries</li>
+            <li>Improve our website and services</li>
+        </ul>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">3. Data Security</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">We use industry-standard security measures including HTTPS encryption, secure session handling, and regular security audits to protect your data.</p>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">4. Cookies</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">We use session cookies to maintain your shopping cart and login status. We do not use tracking or advertising cookies.</p>
+    </div>
+    <div class="card" style="padding:2rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">5. Contact</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">Questions about privacy? <a href="{% url 'shop:contact' %}" style="color:var(--primary);">Contact us</a> and we'll respond within 48 hours.</p>
+    </div>
+</div>
+{% endblock %}

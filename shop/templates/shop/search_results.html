@@ -1,0 +1,54 @@
+{% extends 'shop/base.html' %}
+{% load money %}
+{% block title %}Search: "{{ query }}" — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Search Bdcrafter.com for "{{ query }}". Browse matching products and services, or view the full catalog of products available in Bangladesh.{% endblock %}
+{% block og_title %}Search "{{ query }}" | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}Browse products and services matching "{{ query }}" at Bdcrafter.com.{% endblock %}
+
+{% block content %}
+<div style="width:100%;max-width:100%;box-sizing:border-box;">
+    <h1 style="font-size:1.35rem;font-weight:800;margin:0 0 .375rem;letter-spacing:-0.02em;">
+        Search Results{% if query %} for "<em style="color:var(--sage-dark);">{{ query }}</em>"{% endif %}
+    </h1>
+    <p style="color:var(--text-muted);font-size:.8125rem;margin:0 0 1.25rem;">{{ products|length }} result{{ products|length|pluralize }} found</p>
+
+    {% if products %}
+    <div class="product-grid-2col">
+        {% for product in products %}
+        <article class="product-card">
+            <a href="{{ product.get_absolute_url }}" class="product-card-img-wrap">
+                {% with img=product.featured_image %}
+                    {% if img %}
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" class="product-card-img" loading="lazy">
+                    {% else %}
+                        <div class="product-card-img-placeholder">
+                            {% include 'shop/includes/category_icon.html' with category_slug=product.category.slug %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </a>
+            <div class="product-card-body">
+                <h2 class="product-card-title">
+                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                </h2>
+                {% if product.brand %}<p class="product-card-brand">{{ product.brand.name }}</p>{% endif %}
+                <div class="product-card-footer">
+                    <div class="product-card-price-wrap">
+                        <span class="product-price-current">{% if product.price_on_request %}Upon discussion{% else %}{{ product.currency|currency_symbol }}{{ product.price_display }}{% endif %}</span>
+                    </div>
+                    <a href="{{ product.get_absolute_url }}" class="product-card-btn">{% if product.is_digital_service %}Book Now{% else %}View{% endif %}</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding:2.5rem 1.5rem;text-align:center;max-width:480px;margin:0 auto;">
+        <div style="font-size:3rem;margin-bottom:.75rem;">{% include 'shop/includes/icon.html' with icon='search' %}</div>
+        <h2 style="font-size:1.15rem;font-weight:700;margin:0 0 .5rem;">No results found</h2>
+        <p style="color:var(--text-muted);font-size:.875rem;margin:0 0 1.25rem;">Try a different search term or browse all products.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-sm">Browse All Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

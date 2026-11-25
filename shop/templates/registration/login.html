@@ -1,0 +1,23 @@
+{% extends 'shop/base.html' %}
+{% block title %}Login - {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto rounded-3xl bg-white p-10 shadow-sm">
+    <h1 class="text-3xl font-semibold">Log in</h1>
+    <form method="post" class="mt-8 space-y-6">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Username</label>
+            <input type="text" name="username" required class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Password</label>
+            <input type="password" name="password" required class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3" />
+        </div>
+        <div class="flex items-center justify-between text-sm text-slate-600">
+            <a href="{% url 'password_reset' %}" class="hover:text-slate-900">Forgot password?</a>
+            <button type="submit" class="rounded-2xl bg-slate-900 px-6 py-3 text-white">Login</button>
+        </div>
+    </form>
+    <p class="mt-6 text-sm text-slate-500">New to Bdcrafter.com? <a href="{% url 'shop:register' %}" class="text-slate-900 underline">Create an account</a>.</p>
+</div>
+{% endblock %}

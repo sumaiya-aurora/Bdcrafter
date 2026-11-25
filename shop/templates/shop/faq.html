@@ -1,0 +1,101 @@
+{% extends 'shop/base.html' %}
+{% block title %}FAQ — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Frequently asked questions about Bdcrafter.com, ordering, delivery, returns, and payments.{% endblock %}
+{% block og_title %}Frequently Asked Questions | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}Answers about ordering, guest checkout, delivery, returns, and payments at Bdcrafter.com.{% endblock %}
+
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+    <h1 style="font-size:clamp(1.75rem,4vw,2.5rem);font-weight:800;margin:0 0 .5rem;">Frequently Asked Questions</h1>
+    <p style="color:var(--text-muted);margin:0 0 2.5rem;">Everything you need to know about shopping at Bdcrafter.com.</p>
+
+    {% for item in faq_items %}{% endfor %}
+
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+        {% for q,a in faq_list %}{% endfor %}
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                How do I place an order?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                Simply browse our products, add items to your cart, then click "Proceed to Checkout." You don't need an account — you can order as a guest with just your name, phone, and address.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                Do I need to create an account?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                No! You can place an order as a guest without registering. However, creating an account lets you track your orders, save addresses, and use your wishlist.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                What payment methods are available?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                Currently we accept <strong>Cash on Delivery (COD)</strong> — pay when you receive your order. Online payment via bKash, Nagad, Rocket, and Stripe is coming soon.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                How long does delivery take?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                Dhaka deliveries typically take 1–2 business days. Outside Dhaka takes 2–5 business days depending on your location. You'll receive a call before delivery.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                Can I cancel my order?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                Yes, you can cancel your order while it's in Pending or Confirmed status. Once it's been shipped, cancellation is no longer possible. Contact us immediately if you need to cancel.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                What is your return policy?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                We offer a 7-day return policy for damaged or incorrect products. The product must be unused and in its original packaging. See our <a href="{% url 'shop:returns_policy' %}" style="color:var(--sage);">Return Policy</a> for full details.
+            </div>
+        </details>
+
+        <details class="card" style="padding:0;overflow:hidden;">
+            <summary style="padding:1.25rem 1.5rem;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                How do you ensure product quality?
+                <span style="font-size:1.25rem;flex-shrink:0;color:var(--sage);">+</span>
+            </summary>
+            <div style="padding:0 1.5rem 1.25rem;color:var(--text-muted);line-height:1.7;font-size:.9375rem;">
+                Product details and condition are shown on their individual pages. If an item arrives damaged or differs from its description, contact us for help.
+            </div>
+        </details>
+
+    </div>
+
+    <div style="margin-top:2.5rem;text-align:center;padding:2rem;background:var(--sage-muted);border-radius:1.25rem;border:1.5px solid #bbf7d0;">
+        <p style="font-size:.9375rem;color:#166534;margin:0 0 1rem;">Still have questions? We're happy to help!</p>
+        <a href="{% url 'shop:contact' %}" class="btn btn-primary">Contact Us</a>
+    </div>
+</div>
+
+<style>
+details summary::-webkit-details-marker { display: none; }
+details[open] summary span { transform: rotate(45deg); }
+details summary span { display: inline-block; transition: transform .2s; }
+</style>
+{% endblock %}

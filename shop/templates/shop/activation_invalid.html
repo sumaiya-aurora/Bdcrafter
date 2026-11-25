@@ -1,0 +1,9 @@
+{% extends 'shop/base.html' %}
+{% block title %}Invalid Activation - {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto rounded-3xl bg-white p-10 shadow-sm text-center">
+    <h1 class="text-3xl font-semibold">Activation link invalid</h1>
+    <p class="mt-4 text-slate-500">The activation link is invalid or has expired. Please register again.</p>
+    <a href="{% url 'shop:register' %}" class="mt-6 inline-flex rounded-2xl bg-slate-900 px-6 py-3 text-white">Register again</a>
+</div>
+{% endblock %}

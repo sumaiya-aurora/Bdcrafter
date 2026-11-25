@@ -1,0 +1,42 @@
+Bdcrafter.com
+Your online shopping destination
+
+ORDER CONFIRMED
+Thank you for your order, {{ order.first_name }}. We have received it and are preparing it.
+Your invoice is attached as a PDF.
+
+ORDER DETAILS
+Order Number: {{ order.order_number }}
+
+Date: {{ order.created_at|date:"F j, Y" }}
+
+Payment Method: {{ order.payment_method }}
+
+Payment Status: {{ order.payment_status }}
+
+Status: {{ order.status|capfirst }}
+
+ITEMS
+{% for item in order.items.all %}- {{ item.product_name|default:item.product.name }}{% if item.variant_name %} ({{ item.variant_name }}){% endif %}
+  Quantity: {{ item.quantity }} | Unit price: Tk {{ item.unit_price }} | Total: Tk {{ item.total_price }}
+{% endfor %}
+Subtotal: Tk {{ order.get_subtotal }}
+{% if order.discount > 0 %}Discount Applied: -Tk {{ order.discount }}
+{% endif %}{% if order.shipping_cost > 0 %}Shipping: Tk {{ order.shipping_cost }}
+{% else %}Shipping: Free
+{% endif %}Total: Tk {{ order.total }}
+
+SHIPPING TO
+{{ order.first_name }} {{ order.last_name }}
+{{ order.shipping_address }}
+{{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} - {{ order.shipping_postal_code }}{% endif %}
+{{ order.shipping_country }}
+Phone: {{ order.phone }}
+
+{% if order.note %}YOUR NOTE
+{{ order.note }}
+
+{% endif %}Need help? Contact us at {{ store_phone }} or reply to this email.
+Order address: {{ store_address }}
+
+© {{ order.created_at.year }} Bdcrafter.com. All rights reserved.

@@ -1,0 +1,172 @@
+{% extends 'admin_panel/base.html' %}
+{% load money %}
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+{% block topbar_title %}Order #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+            <div style="display:flex;align-items:center;gap:.875rem;flex-wrap:wrap;">
+                <h1 style="font-size:1.5rem;font-weight:800;margin:0;">Order #{{ order.order_number }}</h1>
+                <span class="status-badge status-{{ order.status }}">{{ order.status|capfirst }}</span>
+                {% if order.is_new %}<span class="status-new-indicator" style="font-size:.75rem;">NEW</span>{% endif %}
+            </div>
+            <p style="color:var(--muted);font-size:.875rem;margin:.375rem 0 0;">Placed on {{ order.created_at|date:"F j, Y \a\t g:i A" }}</p>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+            <a href="{% url 'admin_panel:order_invoice' order.id %}" target="_blank" class="btn btn-ghost btn-sm">Print Invoice</a>
+            <a href="{% url 'admin_panel:orders' %}" class="btn btn-ghost btn-sm">Back to Orders</a>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;" id="order-detail-grid">
+
+        <!-- Left: items + address -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+            <!-- Items -->
+            <div class="card order-items-card" style="overflow:hidden;">
+                <div style="padding:1.125rem 1.5rem;border-bottom:1px solid var(--border);">
+                    <h2 style="font-size:1rem;font-weight:700;margin:0;">Items ({{ order.items.count }})</h2>
+                </div>
+                <div class="order-items-scroll" style="overflow-x:auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>Product</th><th>Variant</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.product_name|default:item.product.name }}</strong>
+                            </td>
+                            <td style="color:var(--muted);">{{ item.variant_name|default:"—" }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ order.currency|currency_symbol }}{{ item.unit_price }}</td>
+                            <td><strong>{{ order.currency|currency_symbol }}{{ item.total_price }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);">
+                    <div style="display:flex;flex-direction:column;gap:.5rem;max-width:280px;margin-left:auto;">
+                        <div style="display:flex;justify-content:space-between;font-size:.875rem;color:var(--muted);">
+                            <span>Subtotal</span><span>{{ order.currency|currency_symbol }}{{ order.get_subtotal }}</span>
+                        </div>
+                        {% if order.discount > 0 %}
+                        <div style="display:flex;justify-content:space-between;font-size:.875rem;color:#9CAF88;">
+                            <span>Discount</span><span>-{{ order.currency|currency_symbol }}{{ order.discount }}</span>
+                        </div>
+                        {% endif %}
+                        {% if order.shipping_cost > 0 %}
+                        <div style="display:flex;justify-content:space-between;font-size:.875rem;color:var(--muted);">
+                            <span>Shipping</span><span>{{ order.currency|currency_symbol }}{{ order.shipping_cost }}</span>
+                        </div>
+                        {% endif %}
+                        <hr style="border:none;border-top:1px solid var(--border);margin:.25rem 0;">
+                        <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:800;">
+                            <span>Total</span><span>{% if order.quote_only %}Quote pending{% else %}{{ order.currency|currency_symbol }}{{ order.total }}{% if order.requires_quote %} + quote pending{% endif %}{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer & shipping -->
+            <div class="order-customer-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;">
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="font-size:.9rem;font-weight:700;margin:0 0 .875rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Customer</h3>
+                    <p style="margin:0;font-size:.9rem;line-height:1.7;">
+                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                        {{ order.email }}<br>
+                        {{ order.phone }}
+                    </p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="font-size:.9rem;font-weight:700;margin:0 0 .875rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Shipping Address</h3>
+                    <p style="margin:0;font-size:.9rem;color:var(--muted);line-height:1.7;">
+                        {{ order.shipping_address }}<br>
+                        {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+                        {{ order.shipping_country }}
+                    </p>
+                </div>
+            </div>
+
+            {% if order.note %}
+            <div class="card" style="padding:1.5rem;border-left:3px solid #f59e0b;">
+                <h3 style="font-size:.9rem;font-weight:700;margin:0 0 .5rem;">Order Note</h3>
+                <p style="margin:0;color:var(--muted);font-size:.9rem;">{{ order.note }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: status update + info -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+            <!-- Update status -->
+            <div class="card" style="padding:1.5rem;">
+                <h2 style="font-size:1rem;font-weight:700;margin:0 0 1rem;">Update Status</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div style="margin-bottom:.875rem;">
+                        <label class="form-label" for="status-select">New Status</label>
+                        <select name="status" id="status-select" class="form-control">
+                            {% for val, label in STATUS_CHOICES %}
+                            <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Update Status</button>
+                </form>
+            </div>
+
+            <!-- Order summary -->
+            <div class="card" style="padding:1.5rem;">
+                <h2 style="font-size:1rem;font-weight:700;margin:0 0 1rem;">Order Info</h2>
+                <div style="display:flex;flex-direction:column;gap:.75rem;">
+                    <div>
+                        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem;">Order Number</div>
+                        <div style="font-weight:700;font-size:.9rem;">#{{ order.order_number }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem;">Payment Method</div>
+                        <div style="font-weight:600;font-size:.9rem;">{{ order.payment_method }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem;">Payment Status</div>
+                        <div style="font-weight:600;font-size:.9rem;">{{ order.payment_status }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem;">Placed</div>
+                        <div style="font-weight:600;font-size:.9rem;">{{ order.created_at|date:"F j, Y" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem;">Last Updated</div>
+                        <div style="font-weight:600;font-size:.9rem;">{{ order.updated_at|date:"F j, Y g:i A" }}</div>
+                    </div>
+                    <hr style="border:none;border-top:1px solid var(--border);margin:.5rem 0;">
+                    <a href="{% url 'admin_panel:order_invoice' order.id %}" target="_blank" class="btn btn-ghost" style="width:100%;text-align:center;">
+                        Printable Invoice
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+@media (min-width: 1024px) {
+    #order-detail-grid { grid-template-columns: 1fr 280px !important; }
+}
+#order-detail-grid, #order-detail-grid > div { min-width:0; max-width:100%; }
+.order-items-card, .order-items-scroll { min-width:0; max-width:100%; }
+@media (max-width: 640px) {
+    .card .grid-2 { grid-template-columns: 1fr !important; }
+    .order-customer-grid { grid-template-columns:1fr !important; }
+    #order-detail-grid > div > .card { padding:1rem !important; }
+}
+</style>
+{% endblock %}

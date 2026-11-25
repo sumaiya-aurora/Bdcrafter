@@ -1,0 +1,36 @@
+{% extends 'shop/base.html' %}
+{% block title %}Create Account — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:2rem;">
+        <h1 style="font-size:1.875rem;font-weight:800;margin:0 0 .5rem;">Create Account</h1>
+        <p style="color:var(--text-muted);margin:0;">Join Bdcrafter.com to track orders, save addresses, and use your wishlist.</p>
+    </div>
+
+    <!-- Guest note -->
+    <div style="background:var(--sage-muted);border:1.5px solid var(--sage-light);border-radius:.875rem;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+        <p style="margin:0;font-size:.875rem;color:#166534;">
+            <strong>No account needed to order!</strong> You can <a href="{% url 'shop:checkout' %}" style="color:var(--primary);font-weight:600;">checkout as a guest</a> without registering.
+        </p>
+    </div>
+
+    <div class="card" style="padding:2rem;">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="form-error">{{ field.errors.0 }}</div>{% endif %}
+                {% if field.help_text %}<p style="font-size:.75rem;color:var(--text-muted);margin:.25rem 0 0;">{{ field.help_text }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem;">Create Account</button>
+        </form>
+        <p style="text-align:center;margin:1.25rem 0 0;font-size:.875rem;color:var(--text-muted);">
+            Already have an account? <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600;">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

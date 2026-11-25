@@ -1,0 +1,28 @@
+{% extends 'admin_panel/base.html' %}
+{% load money %}
+{% block title %}Delete Product: {{ product.name }}{% endblock %}
+{% block topbar_title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+<div style="max-width:540px;margin:2rem auto;">
+    <div class="card" style="padding:2rem;text-align:center;">
+        <div style="font-size:3rem;margin-bottom:1rem;">{% include 'shop/includes/icon.html' with icon='alert' %}</div>
+        <h1 style="font-size:1.375rem;font-weight:800;margin:0 0 .5rem;">Delete Product</h1>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.6;margin:0 0 1.5rem;">
+            Are you sure you want to permanently delete <strong>"{{ product.name }}"</strong>? This action cannot be undone.
+        </p>
+
+        <div style="background:var(--bg);border-radius:.75rem;padding:1rem;margin-bottom:1.5rem;text-align:left;font-size:.875rem;">
+            <div><strong>SKU:</strong> {{ product.sku }}</div>
+            <div><strong>Price:</strong> {% if product.price_on_request %}Upon discussion{% else %}{{ product.currency|currency_symbol }}{{ product.price_display }}{% endif %}</div>
+            <div><strong>Stock:</strong> {{ product.stock }} units</div>
+        </div>
+
+        <form method="post" style="display:flex;justify-content:center;gap:1rem;">
+            {% csrf_token %}
+            <a href="{% url 'admin_panel:products' %}" class="btn btn-ghost" style="min-width:110px;">Cancel</a>
+            <button type="submit" class="btn btn-danger" style="min-width:130px;">Yes, Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

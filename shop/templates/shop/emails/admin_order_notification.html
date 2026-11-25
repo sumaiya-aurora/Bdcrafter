@@ -1,0 +1,117 @@
+{% load money %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Order - Bdcrafter.com</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+  .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  .header { background: linear-gradient(135deg, #1a2e2b 0%, #16a34a 100%); padding: 32px 40px; color: #fff; }
+  .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+  .header p { margin: 6px 0 0; opacity: 0.85; font-size: 14px; }
+  .badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 100px; padding: 4px 14px; font-size: 13px; font-weight: 600; margin-top: 12px; }
+  .body { padding: 36px 40px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #6b7280; margin: 0 0 12px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 24px; }
+  .info-item label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 2px; }
+  .info-item span { font-size: 14px; color: #111827; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { background: #f8fafc; padding: 10px 14px; text-align: left; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #374151; }
+  .totals { background: #f8fafc; border-radius: 12px; padding: 16px 20px; }
+  .total-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; color: #6b7280; }
+  .total-row.final { font-size: 18px; font-weight: 700; color: #111827; border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 12px; }
+  .status-badge { display: inline-block; background: #fef3c7; color: #92400e; border-radius: 100px; padding: 4px 14px; font-size: 12px; font-weight: 600; }
+  .footer { background: #f8fafc; padding: 20px 40px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #f1f5f9; }
+  .action-btn { display: inline-block; background: #16a34a; color: #fff; text-decoration: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 600; margin: 8px 0 24px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>Bdcrafter.com</h1>
+    <p>New Order Received</p>
+    <div class="badge">Order #{{ order.order_number }}</div>
+  </div>
+  <div class="body">
+    <p style="margin:0 0 24px; color:#374151; font-size:15px;">
+      A new order has been placed. Please review the details below and confirm it in the admin panel.
+    </p>
+
+    <p class="section-title">Customer Info</p>
+    <div class="info-grid">
+      <div class="info-item"><label>Name</label><span>{{ order.first_name }} {{ order.last_name }}</span></div>
+      <div class="info-item"><label>Email</label><span>{{ order.email }}</span></div>
+      <div class="info-item"><label>Phone</label><span>{{ order.phone }}</span></div>
+      <div class="info-item"><label>Payment</label><span>{{ order.payment_method }}</span></div>
+    </div>
+
+    <p class="section-title">Shipping Address</p>
+    <p style="font-size:14px; color:#374151; margin:0 0 24px;">
+      {{ order.shipping_address }}<br>
+      {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+      {{ order.shipping_country }}
+    </p>
+
+    {% if order.note %}
+    <p class="section-title">Order Note</p>
+    <p style="font-size:14px; color:#374151; margin:0 0 24px; padding:12px 16px; background:#fffbeb; border-radius:8px; border-left:4px solid #f59e0b;">{{ order.note }}</p>
+    {% endif %}
+
+    <p class="section-title">Items Ordered</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td>
+            {{ item.product_name|default:item.product.name }}
+            {% if item.variant_name %}<br><span style="color:#6b7280; font-size:12px;">{{ item.variant_name }}</span>{% endif %}
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>{% if item.product and item.product.price_on_request %}Upon discussion{% else %}{{ order.currency|currency_symbol }}{{ item.unit_price }}{% endif %}</td>
+          <td>{% if item.product and item.product.price_on_request %}Upon discussion{% else %}{{ order.currency|currency_symbol }}{{ item.total_price }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="total-row"><span>Subtotal</span><span>{{ order.currency|currency_symbol }}{{ order.get_subtotal }}</span></div>
+      {% if order.discount > 0 %}
+      <div class="total-row"><span>Discount</span><span>-{{ order.currency|currency_symbol }}{{ order.discount }}</span></div>
+      {% endif %}
+      {% if order.shipping_cost > 0 %}
+      <div class="total-row"><span>Shipping</span><span>{{ order.currency|currency_symbol }}{{ order.shipping_cost }}</span></div>
+      {% endif %}
+      <div class="total-row final"><span>Total</span><span>{% if order.quote_only %}Quote pending{% else %}{{ order.currency|currency_symbol }}{{ order.total }}{% if order.requires_quote %} + quote pending{% endif %}{% endif %}</span></div>
+    </div>
+    {% if order.currency == 'USD' %}
+    <p style="font-size:13px;color:#6b7280;">Payment details will be shared after the order is reviewed.</p>
+    {% endif %}
+    {% if order.requires_quote %}
+    <p style="font-size:13px;color:#6b7280;">Custom-service pricing will be agreed with the customer after the order.</p>
+    {% endif %}
+
+    <div style="margin-top:20px;">
+      Status: <span class="status-badge">{{ order.status|capfirst }}</span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#6b7280;">
+      Placed on {{ order.created_at|date:"F j, Y \a\t g:i A" }}
+    </div>
+  </div>
+  <div class="footer">
+    © {{ order.created_at.year }} Bdcrafter.com. This is an automated notification.
+  </div>
+</div>
+</body>
+</html>

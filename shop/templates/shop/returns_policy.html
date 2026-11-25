@@ -1,0 +1,36 @@
+{% extends 'shop/base.html' %}
+{% block title %}Return Policy — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Review Bdcrafter.com's 7-day return window, eligible items, and how to request a return.{% endblock %}
+{% block og_title %}Return Policy | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}Review Bdcrafter.com's 7-day return window, eligible items, and how to request a return.{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+    <h1 style="font-size:2rem;font-weight:800;margin:0 0 .5rem;">Return Policy</h1>
+    <p style="color:var(--text-muted);font-size:.875rem;margin:0 0 2.5rem;">Last updated: October 2026</p>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">7-Day Return Window</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">You have 7 days from the delivery date to initiate a return. Products must be unused, in original packaging, with all seals intact.</p>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">Eligible Returns</h2>
+        <ul style="color:var(--text-muted);line-height:1.9;margin:0;padding-left:1.5rem;">
+            <li>Damaged or defective products</li>
+            <li>Wrong product received</li>
+            <li>Product does not match description</li>
+        </ul>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">Non-Returnable Items</h2>
+        <ul style="color:var(--text-muted);line-height:1.9;margin:0;padding-left:1.5rem;">
+            <li>Products with broken seals or used packaging</li>
+            <li>Items purchased during clearance sales</li>
+            <li>Products damaged due to customer mishandling</li>
+        </ul>
+    </div>
+    <div class="card" style="padding:2rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">How to Return</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0 0 1rem;">Contact us within 7 days of delivery with photos of the product and your order number. We'll arrange a pickup and process your refund or exchange within 3–5 business days.</p>
+        <a href="{% url 'shop:contact' %}" class="btn btn-primary btn-sm">Contact Us to Return</a>
+    </div>
+</div>
+{% endblock %}

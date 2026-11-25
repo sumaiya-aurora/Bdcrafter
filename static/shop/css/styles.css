@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════
+   BDCRAFTER GLOBAL STYLES
+   Sage × Offwhite × Tomato × Ink
+   ═══════════════════════════════════════════════ */
+:root {
+    color-scheme: light;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #232620;
+    background-color: #F7F5EF;
+
+    /* Brand */
+    --sage:          #9CAF88;
+    --sage-dark:     #82966E;
+    --sage-light:    #B5C5A4;
+    --sage-muted:    #E3E8DC;
+    --offwhite:      #F7F5EF;
+    --offwhite-card: #FDFCF9;
+    --offwhite-slot: #EAE7DE;
+    --tomato:        #EB412C;
+    --tomato-hover:  #D43521;
+    --ink:           #232620;
+    --ink-muted:     #5A5F54;
+
+    /* Semantic */
+    --surface:    var(--offwhite-card);
+    --surface-soft: var(--sage-muted);
+    --text-primary: var(--ink);
+    --text-secondary: var(--ink-muted);
+    --text-muted: var(--ink-muted);
+    --border:     #D6DCCC;
+    --divider:    #DDE3D3;
+    --accent:     var(--sage);
+    --accent-dark:var(--sage-dark);
+    --button:     var(--sage);
+    --button-hover:var(--sage-dark);
+    --success:    var(--sage);
+    --warning:    #D97706;
+    --error:      var(--tomato);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--offwhite);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+}
+
+::selection { background: var(--tomato); color: var(--offwhite); }
+
+button, input, textarea, select { font: inherit; }
+
+input, textarea, select {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 250ms, box-shadow 250ms;
+    padding: 0.75rem 1rem;
+}
+
+button {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    min-height: 44px;
+    background-color: var(--sage);
+    color: var(--offwhite);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 200ms, box-shadow 200ms, background-color 200ms;
+}
+button:hover { transform: translateY(-1px); background-color: var(--sage-dark); box-shadow: 0 6px 18px rgba(130,150,110,.3); }
+button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(156,175,136,.35); }
+button:disabled { background-color: #94a3b8; cursor: not-allowed; opacity: .75; transform: none; box-shadow: none; }
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(156,175,136,.18);
+}
+textarea { min-height: 10rem; }
+
+a { color: inherit; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--offwhite); }
+::-webkit-scrollbar-thumb { background: #C6CEBE; border-radius: 9999px; }

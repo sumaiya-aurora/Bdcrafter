@@ -1,0 +1,324 @@
+{% load money %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ order.order_number }} — Bdcrafter.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #9CAF88;
+            --accent: #1a2e2b;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg-light: #f8fafc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            color: var(--text);
+            background: #f1f5f9;
+            padding: 2rem 1rem;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .invoice-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            padding: 3rem;
+        }
+        .actions-bar {
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #15803d; }
+        .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: #f8fafc; }
+
+        /* Invoice Layout */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+        .brand-logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .brand-logo span { color: var(--primary); }
+        .company-info {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .invoice-title-block {
+            text-align: right;
+        }
+        .invoice-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+        }
+        .invoice-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.25rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .detail-box h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+        .detail-box p {
+            font-size: 0.925rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        /* Items Table */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+        .invoice-table th {
+            text-align: left;
+            padding: 0.875rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+        }
+        .invoice-table td {
+            padding: 1rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .invoice-table .text-right { text-align: right; }
+        .invoice-table .text-center { text-align: center; }
+
+        /* Summary */
+        .summary-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .summary-card {
+            width: 300px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        .summary-row.total {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--accent);
+            border-top: 2px solid var(--border);
+            padding-top: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer-note {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--border);
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: .75rem; }
+            .actions-bar { gap: .5rem; align-items: stretch; flex-direction: column; }
+            .actions-bar .btn { justify-content: center; }
+            .invoice-wrapper { padding: 1.25rem; }
+            .invoice-header { flex-direction: column; gap: 1.25rem; }
+            .invoice-title-block { text-align: left; }
+            .invoice-number { overflow-wrap: anywhere; }
+            .details-grid { grid-template-columns:1fr; gap:1.25rem; padding:1.25rem 0; }
+            .invoice-table-wrap { max-width:100%; overflow-x:auto; }
+            .invoice-table { min-width:480px; }
+            .summary-card { width:100%; max-width:300px; }
+            .footer-note { overflow-wrap:anywhere; }
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .actions-bar { display: none !important; }
+            .invoice-wrapper {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="actions-bar">
+    <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-outline">
+        Back to Order
+    </a>
+    <button onclick="window.print()" class="btn btn-primary">
+        Print Invoice / Save PDF
+    </button>
+</div>
+
+<div class="invoice-wrapper">
+    <!-- Header -->
+    <header class="invoice-header">
+        <div>
+            <div class="brand-logo">Bdcrafter.com</div>
+            <div class="company-info">
+                {{ store_address }}<br>
+                Phone: {{ store_phone }}<br>
+                Email: {{ admin_email }}
+            </div>
+        </div>
+        <div class="invoice-title-block">
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-number">#{{ order.order_number }}</div>
+            <div style="font-size: 0.8125rem; color: var(--muted); margin-top: 0.35rem;">
+                Date: {{ order.created_at|date:"F j, Y" }}
+            </div>
+        </div>
+    </header>
+
+    <!-- Customer and Order Details -->
+    <section class="details-grid">
+        <div class="detail-box">
+            <h3>Billed / Shipped To</h3>
+            <p>
+                <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                {{ order.shipping_address }}<br>
+                {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+                {{ order.shipping_country }}<br>
+                Phone: {{ order.phone }}<br>
+                Email: {{ order.email }}
+            </p>
+        </div>
+        <div class="detail-box">
+            <h3>Order & Payment Details</h3>
+            <p>
+                <strong>Order Status:</strong> {{ order.status|capfirst }}<br>
+                <strong>Payment Method:</strong> {{ order.payment_method }}<br>
+                <strong>Payment Status:</strong> {{ order.payment_status }}<br>
+                <strong>Order Placed:</strong> {{ order.created_at|date:"F j, Y, g:i A" }}<br>
+                {% if order.note %}<strong>Order Notes:</strong> {{ order.note }}<br>{% endif %}
+            </p>
+        </div>
+    </section>
+
+    <!-- Items Table -->
+    <div class="invoice-table-wrap">
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th style="width: 45%;">Item Description</th>
+                <th class="text-center" style="width: 15%;">Qty</th>
+                <th class="text-right" style="width: 20%;">Unit Price</th>
+                <th class="text-right" style="width: 20%;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.product_name|default:item.product.name }}</strong>
+                    {% if item.variant_name %}
+                    <div style="font-size: 0.8125rem; color: var(--muted);">Variant: {{ item.variant_name }}</div>
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">{{ order.currency|currency_symbol }}{{ item.unit_price }}</td>
+                <td class="text-right"><strong>{{ order.currency|currency_symbol }}{{ item.total_price }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <!-- Totals Summary -->
+    <div class="summary-wrap">
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>{{ order.currency|currency_symbol }}{{ order.get_subtotal }}</span>
+            </div>
+            {% if order.discount > 0 %}
+            <div class="summary-row" style="color: #9CAF88;">
+                <span>Discount:</span>
+                <span>-{{ order.currency|currency_symbol }}{{ order.discount }}</span>
+            </div>
+            {% endif %}
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span>{% if order.shipping_cost > 0 %}{{ order.currency|currency_symbol }}{{ order.shipping_cost }}{% else %}Free{% endif %}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total Amount:</span>
+                <span>{% if order.quote_only %}Quote pending{% else %}{{ order.currency|currency_symbol }}{{ order.total }}{% if order.requires_quote %} + quote pending{% endif %}{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <footer class="footer-note">
+        <p>Thank you for shopping with <strong>Bdcrafter.com</strong>!</p>
+        <p>For any inquiries regarding this order, please contact our support team at {{ admin_email }} or {{ store_phone }}.</p>
+    </footer>
+</div>
+
+</body>
+</html>

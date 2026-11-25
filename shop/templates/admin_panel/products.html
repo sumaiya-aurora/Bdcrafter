@@ -1,0 +1,103 @@
+{% extends 'admin_panel/base.html' %}
+{% load money %}
+{% block title %}Products{% endblock %}
+{% block topbar_title %}Products Management{% endblock %}
+
+{% block content %}
+<!-- Search + actions -->
+<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <form method="get" style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ search }}" placeholder="Search products..." class="form-control" style="width:260px;" aria-label="Search">
+        <button type="submit" class="btn btn-primary">Search</button>
+        {% if search %}<a href="{% url 'admin_panel:products' %}" class="btn btn-ghost">Clear</a>{% endif %}
+    </form>
+    <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">+ Add Product</a>
+</div>
+
+<div class="card" style="overflow:hidden;">
+    {% if products %}
+    <div style="overflow-x:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:.75rem;">
+                            {% with img=product.primary_image %}
+                            {% if img %}
+                                <img src="{{ img.image.url }}" alt="{{ product.name }}" style="width:40px;height:40px;object-fit:cover;border-radius:.5rem;flex-shrink:0;border:1px solid var(--border);">
+                            {% else %}
+                                <div style="width:40px;height:40px;background:var(--bg);border-radius:.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M10 7V4h4v3"/><path d="M9 4h6"/></svg></div>
+                            {% endif %}
+                            {% endwith %}
+                            <strong style="font-size:.875rem;">{{ product.name }}</strong>
+                        </div>
+                    </td>
+                    <td style="color:var(--muted);font-size:.8125rem;">{{ product.sku }}</td>
+                    <td style="font-size:.8125rem;">{{ product.category.name|default:"—" }}</td>
+                    <td>
+                        <strong>{% if product.price_on_request %}Upon discussion{% else %}{{ product.currency|currency_symbol }}{{ product.price_display }}{% endif %}</strong>
+                        {% if product.sale_price %}<br><span style="font-size:.75rem;text-decoration:line-through;color:var(--muted);">{{ product.currency|currency_symbol }}{{ product.price }}</span>{% endif %}
+                    </td>
+                    <td>
+                        <span style="
+                            font-weight:700;
+                            color:{% if product.stock == 0 %}#dc2626{% elif product.stock <= 5 %}#d97706{% else %}#9CAF88{% endif %};
+                        ">{{ product.stock }}</span>
+                    </td>
+                    <td>
+                        {% if product.published %}
+                            <span style="color:#9CAF88;font-weight:600;font-size:.8125rem;">{% include 'shop/includes/icon.html' with icon='check' %} Published</span>
+                        {% else %}
+                            <span style="color:var(--muted);font-size:.8125rem;">Draft</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.featured %}
+                            <span style="color:#f59e0b;font-weight:700;">{% include 'shop/includes/icon.html' with icon='star' %} Yes</span>
+                        {% else %}
+                            <span style="color:var(--muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:.375rem;flex-wrap:nowrap;">
+                            <a href="{% url 'admin_panel:product_edit' product.id %}" class="btn btn-ghost btn-sm">Edit</a>
+                            <form method="post" action="{% url 'admin_panel:product_edit' product.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_published">
+                                <button type="submit" class="btn btn-sm {% if product.published %}btn-warning{% else %}btn-info{% endif %}">
+                                    {% if product.published %}Unpublish{% else %}Publish{% endif %}
+                                </button>
+                            </form>
+                            <a href="{% url 'admin_panel:product_delete' product.id %}" class="btn btn-ghost btn-sm" style="color:#ef4444;" title="Delete product" aria-label="Delete {{ product.name }}">{% include 'shop/includes/icon.html' with icon='close' %}</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div style="padding:1rem 1.5rem;color:var(--muted);font-size:.8125rem;border-top:1px solid var(--border);">
+        {{ products|length }} product{{ products|length|pluralize }}
+    </div>
+    {% else %}
+    <div style="padding:3rem;text-align:center;color:var(--muted);">
+        <div style="font-size:3rem;margin-bottom:1rem;">{% include 'shop/includes/icon.html' with icon='bag' %}</div>
+        <p style="margin:0 0 1rem;">No products found.</p>
+        <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">Add First Product</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

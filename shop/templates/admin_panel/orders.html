@@ -1,0 +1,103 @@
+{% extends 'admin_panel/base.html' %}
+{% load money %}
+{% block title %}Orders{% endblock %}
+{% block topbar_title %}Orders Management{% endblock %}
+
+{% block content %}
+<!-- Filters bar -->
+<div class="card order-filters" style="padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+    <form method="get" class="order-filter-form" style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
+        <div>
+            <label class="form-label">Search</label>
+            <input type="text" name="q" value="{{ search }}" placeholder="Order #, name, email, phone..." class="form-control" style="width:260px;" aria-label="Search orders">
+        </div>
+        <div>
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control" style="width:160px;" onchange="this.form.submit()">
+                <option value="">All statuses</option>
+                {% for val, label in STATUS_CHOICES %}
+                <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if status_filter or search %}
+        <a href="{% url 'admin_panel:orders' %}" class="btn btn-ghost">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Stats pills -->
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+    {% for val, label in STATUS_CHOICES %}
+    <a href="{% url 'admin_panel:orders' %}?status={{ val }}" style="
+        padding:.375rem .875rem;border-radius:999px;font-size:.8125rem;font-weight:600;
+        text-decoration:none;transition:all .15s;
+        background:{% if status_filter == val %}var(--primary){% else %}var(--surface){% endif %};
+        color:{% if status_filter == val %}#fff{% else %}var(--text){% endif %};
+        border:1px solid {% if status_filter == val %}var(--primary){% else %}var(--border){% endif %};
+    ">{{ label }}</a>
+    {% endfor %}
+</div>
+
+<!-- Orders table -->
+<div class="card" style="overflow:hidden;">
+    {% if orders %}
+    <div style="overflow-x:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>
+                        <strong style="font-size:.9375rem;">#{{ order.order_number }}</strong>
+                        {% if order.is_new %}<span class="status-new-indicator">NEW</span>{% endif %}
+                    </td>
+                    <td>
+                        <div style="font-weight:600;">{{ order.first_name }} {{ order.last_name }}</div>
+                        <div style="font-size:.8125rem;color:var(--muted);">{{ order.email }}</div>
+                        <div style="font-size:.8125rem;color:var(--muted);">{{ order.phone }}</div>
+                    </td>
+                    <td style="color:var(--muted);">{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                    <td><strong>{% if order.quote_only %}Quote pending{% else %}{{ order.currency|currency_symbol }}{{ order.total }}{% if order.requires_quote %} + quote pending{% endif %}{% endif %}</strong></td>
+                    <td style="font-size:.8125rem;color:var(--muted);">{{ order.payment_method }}</td>
+                    <td><span class="status-badge status-{{ order.status }}">{{ order.status|capfirst }}</span></td>
+                    <td style="font-size:.8125rem;color:var(--muted);">{{ order.created_at|date:"M j, Y" }}<br>{{ order.created_at|time:"g:i A" }}</td>
+                    <td>
+                        <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-primary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div style="padding:1rem 1.5rem;color:var(--muted);font-size:.8125rem;border-top:1px solid var(--border);">
+        Showing {{ orders|length }} order{{ orders|length|pluralize }}
+    </div>
+    {% else %}
+    <div style="padding:3rem;text-align:center;color:var(--muted);">
+        <div style="font-size:3rem;margin-bottom:1rem;">{% include 'shop/includes/icon.html' with icon='package' %}</div>
+        <p style="margin:0;">No orders found{% if status_filter or search %} matching your filters{% endif %}.</p>
+    </div>
+    {% endif %}
+</div>
+<style>
+@media (max-width: 640px) {
+    .order-filters { padding:1rem !important; }
+    .order-filter-form > div { width:100%; min-width:0; }
+    .order-filter-form .form-control { width:100% !important; max-width:100%; }
+    .order-filter-form > button { width:100%; }
+}
+</style>
+{% endblock %}

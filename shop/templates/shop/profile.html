@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% block title %}Profile - {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto rounded-3xl bg-white p-8 shadow-sm">
+    <h1 class="text-3xl font-semibold">Profile settings</h1>
+    <form method="post" class="mt-6 space-y-6">
+        {% csrf_token %}
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">First name</label>
+                {{ form.first_name }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Last name</label>
+                {{ form.last_name }}
+            </div>
+            <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-slate-700">Email</label>
+                {{ form.email }}
+            </div>
+        </div>
+        <button type="submit" class="rounded-2xl bg-slate-900 px-6 py-4 text-white">Save changes</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Homepage & Footer{% endblock %}
+{% block topbar_title %}Homepage & Footer{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {% if content_form.non_field_errors %}
+    <div class="toast toast-error">{{ content_form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for title, fields in field_groups %}
+    <section class="card" style="padding:1.5rem;margin-bottom:1.25rem;">
+        <h2 style="margin:0 0 1.25rem;font-size:1.125rem;font-weight:700;">{{ title }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;">
+            {% for field in fields %}
+            <div {% if field.name == 'hero_description_prefix' or field.name == 'home_cta_description' or field.name == 'footer_brand_description' %}style="grid-column:1 / -1;"{% endif %}>
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small style="display:block;color:var(--muted);margin-top:.25rem;">{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<div class="toast-error" style="font-size:.8125rem;margin-top:.25rem;">{{ error }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+
+    {% for title, formset in inlines %}
+    <section class="card" style="padding:1.5rem;margin-bottom:1.25rem;">
+        <h2 style="margin:0 0 1.25rem;font-size:1.125rem;font-weight:700;">{{ title }}</h2>
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1rem;">
+            {% for row in formset %}
+            <div style="border:1px solid var(--border);border-radius:.75rem;padding:1rem;min-width:0;">
+                {% for hidden in row.hidden_fields %}{{ hidden }}{% endfor %}
+                <h3 style="margin:0 0 .75rem;font-size:.9375rem;font-weight:600;">
+                    {{ title|title|slice:":-1" }} {{ forloop.counter }}
+                </h3>
+                <div style="display:grid;gap:.75rem;">
+                    {% for field in row.visible_fields %}
+                    <div>
+                        {% if field.field.widget.input_type == 'checkbox' %}
+                        <label style="display:flex;align-items:center;gap:.5rem;font-size:.875rem;font-weight:600;">
+                            {{ field }} {{ field.label }}
+                        </label>
+                        {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% endif %}
+                        {% for error in field.errors %}<div class="toast-error" style="font-size:.8125rem;margin-top:.25rem;">{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="color:var(--muted);">No items have been added.</p>
+            {% endfor %}
+        </div>
+        {% for error in formset.non_form_errors %}<div class="toast-error" style="margin-top:.75rem;">{{ error }}</div>{% endfor %}
+    </section>
+    {% endfor %}
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1.5rem;">
+        <button type="submit" class="btn btn-primary">Save homepage and footer</button>
+    </div>
+</form>
+{% endblock %}

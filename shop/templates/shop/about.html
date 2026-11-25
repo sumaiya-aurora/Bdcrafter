@@ -1,0 +1,61 @@
+{% extends 'shop/base.html' %}
+{% block title %}About Us — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Learn about Bdcrafter.com, an online shop bringing everyday products and digital services together, with ordering and delivery across Bangladesh.{% endblock %}
+{% block og_title %}About Bdcrafter.com{% endblock %}
+{% block og_description %}Learn about Bdcrafter.com, an online shop bringing everyday products and digital services together, with ordering and delivery across Bangladesh.{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;">
+        <h1 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin:0 0 1rem;line-height:1.1;">About <span style="color:var(--primary);">Bdcrafter.com</span></h1>
+        <p style="font-size:1.125rem;color:var(--text-muted);line-height:1.7;max-width:560px;margin:0 auto;">A convenient online destination for products and services across Bangladesh.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;margin-bottom:3rem;">
+        <div class="card" style="padding:2rem;">
+            <div style="font-size:2.5rem;margin-bottom:1rem;">{% include 'shop/includes/icon.html' with icon='bag' %}</div>
+            <h2 style="font-size:1.375rem;font-weight:700;margin:0 0 .875rem;">Our Story</h2>
+            <p style="color:var(--text-muted);line-height:1.75;margin:0;">Bdcrafter.com brings a diverse selection of products and services together in one convenient online store, with a simple ordering experience and delivery across Bangladesh.</p>
+        </div>
+        <div class="about-mission-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;">
+            <div class="card" style="padding:1.75rem;">
+                <div style="font-size:2rem;margin-bottom:.75rem;">{% include 'shop/includes/icon.html' with icon='target' %}</div>
+                <h3 style="font-size:1rem;font-weight:700;margin:0 0 .625rem;">Our Mission</h3>
+                <p style="color:var(--text-muted);line-height:1.65;font-size:.9375rem;margin:0;">To make useful products and services easy to discover and order for customers across Bangladesh.</p>
+            </div>
+            <div class="card" style="padding:1.75rem;">
+                <div style="font-size:2rem;margin-bottom:.75rem;">{% include 'shop/includes/icon.html' with icon='gem' %}</div>
+                <h3 style="font-size:1rem;font-weight:700;margin:0 0 .625rem;">Our Values</h3>
+                <p style="color:var(--text-muted);line-height:1.65;font-size:.9375rem;margin:0;">Quality, transparency, reliable service, and a customer-first shopping experience.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-stats-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem;margin-bottom:3rem;text-align:center;">
+        <div class="card" style="padding:1.75rem;">
+            <div style="font-size:2rem;font-weight:800;color:var(--primary);margin-bottom:.5rem;">6</div>
+            <div style="font-size:.875rem;color:var(--text-muted);">Product Categories</div>
+        </div>
+        <div class="card" style="padding:1.75rem;">
+            <div style="font-size:2rem;font-weight:800;color:var(--primary);margin-bottom:.5rem;">Guest</div>
+            <div style="font-size:.875rem;color:var(--text-muted);">Checkout Available</div>
+        </div>
+        <div class="card" style="padding:1.75rem;">
+            <div style="font-size:2rem;font-weight:800;color:var(--primary);margin-bottom:.5rem;">Bangladesh</div>
+            <div style="font-size:.875rem;color:var(--text-muted);">Delivery Across the Country</div>
+        </div>
+    </div>
+
+    <div style="text-align:center;">
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg" style="margin-right:.75rem;">Shop Now</a>
+        <a href="{% url 'shop:contact' %}" class="btn btn-ghost btn-lg">Contact Us</a>
+    </div>
+</div>
+<style>
+@media (max-width: 640px) {
+    .about-mission-grid { grid-template-columns:1fr !important; }
+    .about-stats-grid { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)) !important; gap:.75rem !important; }
+    .about-stats-grid .card { padding:1rem !important; }
+}
+</style>
+{% endblock %}

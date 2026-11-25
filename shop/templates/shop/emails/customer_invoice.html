@@ -1,0 +1,140 @@
+{% load money %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmation — Bdcrafter.com</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+  .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  .header { background: linear-gradient(135deg, #1a2e2b 0%, #16a34a 100%); padding: 40px; color: #fff; text-align: center; }
+  .logo { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .header-sub { opacity: 0.85; font-size: 14px; }
+  .hero { background: #f0fdf4; border-bottom: 1px solid #d1fae5; padding: 24px 40px; text-align: center; }
+  .hero h2 { margin: 0; font-size: 20px; color: #14532d; font-weight: 700; }
+  .hero p { margin: 6px 0 0; color: #166534; font-size: 14px; }
+  .order-number { display: inline-block; background: #14532d; color: #fff; border-radius: 100px; padding: 6px 18px; font-size: 14px; font-weight: 700; margin-top: 10px; letter-spacing: .05em; }
+  .body { padding: 36px 40px; }
+  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #9ca3af; margin: 28px 0 12px; }
+  .info-card { background: #f8fafc; border-radius: 12px; padding: 16px 20px; margin-bottom: 8px; }
+  .info-table { width: 100%; border-collapse: collapse; }
+  .info-table td { padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; vertical-align: top; }
+  .info-table tr:last-child td { border-bottom: none; }
+  .info-label { width: 42%; color: #6b7280 !important; }
+  table { width: 100%; border-collapse: collapse; }
+  .tbl-head { background: #f8fafc; }
+  .tbl-head th { padding: 10px 14px; text-align: left; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .tbl-body td { padding: 14px 14px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #374151; vertical-align: top; }
+  .tbl-body tr:last-child td { border-bottom: none; }
+  .totals { background: #f0fdf4; border-radius: 12px; padding: 16px 20px; margin-top: 16px; }
+  .totals-table { width: 100%; border-collapse: collapse; }
+  .totals-table td { padding: 7px 0; font-size: 14px; color: #374151; }
+  .totals-table .amount { text-align: right; white-space: nowrap; }
+  .totals-table .final td { font-size: 20px; font-weight: 800; color: #14532d; border-top: 2px solid #d1fae5; padding-top: 12px; }
+  .address-block { font-size: 14px; color: #374151; line-height: 1.7; }
+  .help-box { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 14px 18px; margin-top: 24px; font-size: 13px; color: #78350f; }
+  .footer { background: #f8fafc; padding: 24px 40px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #f1f5f9; }
+  .footer a { color: #16a34a; text-decoration: none; }
+  .divider { border: none; border-top: 1px solid #f1f5f9; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <div class="logo">Bdcrafter.com</div>
+    <div class="header-sub">Your online shopping destination</div>
+  </div>
+
+  <div class="hero">
+    <h2>Order Confirmed!</h2>
+    <p>Thank you for your order, {{ order.first_name }}. {% if order.currency == 'USD' %}We've received your service order. Payment details will be shared after it is reviewed.{% else %}We've received it and are preparing it now.{% endif %}</p>
+    <div class="order-number">Order #{{ order.order_number }}</div>
+  </div>
+
+  <div class="body">
+    <p style="margin:0 0 0; color:#374151; font-size:14px; line-height:1.6;">
+      Your order has been placed successfully. You'll receive another update when your order is shipped.
+      Please save this email as your receipt.
+    </p>
+
+    <p class="section-title">Order Details</p>
+    <table class="info-table info-card" role="presentation">
+      <tr><td class="info-label" style="padding-left:12px;">Order Number:</td><td><strong>{{ order.order_number }}</strong></td></tr>
+      <tr><td class="info-label" style="padding-left:12px;">Date:</td><td>{{ order.created_at|date:"F j, Y" }}</td></tr>
+      <tr><td class="info-label" style="padding-left:12px;">Payment Method:</td><td>{{ order.payment_method }}</td></tr>
+      <tr><td class="info-label" style="padding-left:12px;">Payment Status:</td><td>{{ order.payment_status }}</td></tr>
+      <tr><td class="info-label" style="padding-left:12px;">Status:</td><td style="color:#16a34a; font-weight:600;">{{ order.status|capfirst }}</td></tr>
+    </table>
+
+    <p class="section-title">Items</p>
+    <table>
+      <thead class="tbl-head">
+        <tr>
+          <th style="border-radius:8px 0 0 8px;">Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th style="text-align:right; border-radius:0 8px 8px 0;">Total</th>
+        </tr>
+      </thead>
+      <tbody class="tbl-body">
+        {% for item in order.items.all %}
+        <tr>
+          <td>
+            <strong>{{ item.product_name|default:item.product.name }}</strong>
+            {% if item.variant_name %}<br><span style="color:#9ca3af; font-size:12px;">{{ item.variant_name }}</span>{% endif %}
+          </td>
+          <td>× {{ item.quantity }}</td>
+          <td>{% if item.product and item.product.price_on_request %}Upon discussion{% else %}{{ order.currency|currency_symbol }}{{ item.unit_price }}{% endif %}</td>
+          <td style="text-align:right; font-weight:600;">{% if item.product and item.product.price_on_request %}Upon discussion{% else %}{{ order.currency|currency_symbol }}{{ item.total_price }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <table class="totals-table" role="presentation">
+      <tr><td>Subtotal:</td><td class="amount">{{ order.currency|currency_symbol }}{{ order.get_subtotal }}</td></tr>
+      {% if order.discount > 0 %}
+      <tr style="color:#16a34a;"><td>Discount Applied:</td><td class="amount">-{{ order.currency|currency_symbol }}{{ order.discount }}</td></tr>
+      {% endif %}
+      {% if order.shipping_cost > 0 %}
+      <tr><td>Shipping:</td><td class="amount">{{ order.currency|currency_symbol }}{{ order.shipping_cost }}</td></tr>
+      {% else %}
+      <tr style="color:#16a34a;"><td>Shipping:</td><td class="amount">Free</td></tr>
+      {% endif %}
+      <tr class="final"><td>Total:</td><td class="amount">{% if order.quote_only %}Quote pending{% else %}{{ order.currency|currency_symbol }}{{ order.total }}{% if order.requires_quote %} + quote pending{% endif %}{% endif %}</td></tr>
+      </table>
+    </div>
+    {% if order.requires_quote %}
+    <p class="help-box">Custom-service pricing will be agreed after order placement. The listed hourly range is informational and is not included in this total.</p>
+    {% endif %}
+
+    <p class="section-title">Shipping To</p>
+    <div class="address-block">
+      <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+      {{ order.shipping_address }}<br>
+      {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} — {{ order.shipping_postal_code }}{% endif %}<br>
+      {{ order.shipping_country }}<br>
+      {{ order.phone }}
+    </div>
+
+    {% if order.note %}
+    <p class="section-title">Your Note</p>
+    <p style="font-size:14px; color:#374151; padding:12px 16px; background:#f8fafc; border-radius:8px;">{{ order.note }}</p>
+    {% endif %}
+
+    <div class="help-box">
+      <strong>Need help?</strong> Contact us at {{ store_phone }} or reply to this email.<br>
+      Keep your order number <strong>#{{ order.order_number }}</strong> handy when you reach out.
+    </div>
+  </div>
+
+  <div class="footer">
+    <p style="margin:0 0 6px;">{{ store_address }} &nbsp;|&nbsp; {{ store_phone }}</p>
+    <p style="margin:0;">© {{ order.created_at.year }} Bdcrafter.com. All rights reserved.</p>
+    <p style="margin:8px 0 0; color:#d1d5db;">This is an automated order confirmation email.</p>
+  </div>
+</div>
+</body>
+</html>

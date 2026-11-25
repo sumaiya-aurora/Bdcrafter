@@ -1,0 +1,15 @@
+{% if category_slug == 'kushikata' %}
+    {% include 'shop/includes/icon.html' with icon='spool' class_name=class_name %}
+{% elif category_slug == 'gadgets' %}
+    {% include 'shop/includes/icon.html' with icon='smartphone' class_name=class_name %}
+{% elif category_slug == 'digital-services' %}
+    {% include 'shop/includes/icon.html' with icon='laptop' class_name=class_name %}
+{% elif category_slug == 'clothes' %}
+    {% include 'shop/includes/icon.html' with icon='shirt' class_name=class_name %}
+{% elif category_slug == 'perfume' %}
+    {% include 'shop/includes/icon.html' with icon='flower' class_name=class_name %}
+{% elif category_slug == 'organic-store' %}
+    {% include 'shop/includes/icon.html' with icon='leaf' class_name=class_name %}
+{% else %}
+    {% include 'shop/includes/icon.html' with icon='tag' class_name=class_name %}
+{% endif %}

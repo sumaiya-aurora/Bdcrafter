@@ -1,0 +1,31 @@
+{% extends 'shop/base.html' %}
+{% block title %}Terms & Conditions — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Review the terms for using Bdcrafter.com, placing orders, payments, delivery, returns, and customer responsibilities.{% endblock %}
+{% block og_title %}Terms & Conditions | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}Review the terms for using Bdcrafter.com, placing orders, payments, delivery, returns, and customer responsibilities.{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+    <h1 style="font-size:2rem;font-weight:800;margin:0 0 .5rem;">Terms & Conditions</h1>
+    <p style="color:var(--text-muted);font-size:.875rem;margin:0 0 2.5rem;">Last updated: October 2026</p>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">1. Acceptance of Terms</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">By using Bdcrafter.com, you agree to these Terms & Conditions. If you disagree with any part, please do not use our website or services.</p>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">2. Orders & Payments</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">All orders are subject to availability. Prices are in BDT (Bangladeshi Taka). We reserve the right to cancel orders if products become unavailable or pricing errors occur.</p>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">3. Products & Services</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">Product and service details, availability, and prices are shown on their respective pages and may be updated as our catalog changes.</p>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">4. User Conduct</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">You agree not to misuse our website, submit false information, or attempt to circumvent our ordering or payment systems.</p>
+    </div>
+    <div class="card" style="padding:2rem;">
+        <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 .875rem;">5. Governing Law</h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin:0;">These terms are governed by the laws of Bangladesh. Any disputes will be resolved in Dhaka courts.</p>
+    </div>
+</div>
+{% endblock %}

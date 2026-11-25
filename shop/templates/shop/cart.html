@@ -1,0 +1,163 @@
+{% extends 'shop/base.html' %}
+{% load money %}
+{% block title %}Shopping Cart — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+
+{% block content %}
+<h1 style="font-size:1.75rem;font-weight:800;margin:0 0 1.5rem;">{% include 'shop/includes/icon.html' with icon='cart' %} Shopping Cart</h1>
+
+{% if cart_items %}
+<div style="display:grid;grid-template-columns:1fr;gap:1.5rem;" id="cart-layout">
+
+    <!-- Cart items -->
+    <div>
+        <div class="card" style="overflow:hidden;">
+            <!-- Desktop table header -->
+            <div style="display:grid;grid-template-columns:3fr 1fr 1.5fr 1fr auto;gap:1rem;padding:1rem 1.5rem;background:var(--bg);border-bottom:1px solid var(--border);font-size:.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);" class="cart-table-header">
+                <span>Product</span>
+                <span>Price</span>
+                <span>Quantity</span>
+                <span>Total</span>
+                <span></span>
+            </div>
+
+            {% for item in cart_items %}
+            <div style="display:grid;grid-template-columns:3fr 1fr 1.5fr 1fr auto;gap:1rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);align-items:center;" class="cart-row">
+                <!-- Product -->
+                <div class="cart-product" style="display:flex;align-items:center;gap:1rem;min-width:0;">
+                    <div style="width:64px;height:64px;border-radius:.75rem;overflow:hidden;flex-shrink:0;border:1px solid var(--border);">
+                        {% with img=item.product.primary_image %}
+                            {% if img %}
+                                <img src="{{ img.image.url }}" alt="{{ item.product.name }}" style="width:100%;height:100%;object-fit:cover;">
+                            {% else %}
+                                <div style="width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M10 7V4h4v3"/><path d="M9 4h6"/></svg></div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div>
+                        <p style="font-weight:600;margin:0;font-size:.9375rem;color:var(--text);">
+                            <a href="{{ item.product.get_absolute_url }}" style="text-decoration:none;color:inherit;">{{ item.product.name }}</a>
+                        </p>
+                        {% if item.variant %}
+                            <p style="margin:.25rem 0 0;font-size:.8125rem;color:var(--text-muted);">{{ item.variant.name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Unit price -->
+                <span class="cart-unit-price" style="font-weight:600;font-size:.9375rem;">{% if item.product.price_on_request %}Upon discussion{% else %}{{ item.product.currency|currency_symbol }}{% if item.variant %}{{ item.variant.price_display }}{% else %}{{ item.product.price_display }}{% endif %}{% endif %}</span>
+                <!-- Quantity -->
+                <form class="cart-quantity" action="{% url 'shop:cart_update' item.id %}" method="post" style="display:flex;align-items:center;gap:.375rem;">
+                    {% csrf_token %}
+                    <button type="button" onclick="adjustQtyInCart(this, -1)" style="width:44px;height:44px;border:1.5px solid var(--border);border-radius:.5rem;background:#fff;cursor:pointer;font-size:.875rem;" aria-label="Decrease quantity">−</button>
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{% if item.variant %}{{ item.variant.stock }}{% else %}{{ item.product.stock }}{% endif %}" onchange="this.form.requestSubmit()" style="width:58px;text-align:center;padding:.375rem .25rem;border:1.5px solid var(--border);border-radius:.5rem;font-size:.875rem;" class="form-control" aria-label="Quantity">
+                    <button type="button" onclick="adjustQtyInCart(this, 1)" style="width:44px;height:44px;border:1.5px solid var(--border);border-radius:.5rem;background:#fff;cursor:pointer;font-size:.875rem;" aria-label="Increase quantity">+</button>
+                </form>
+                <!-- Total -->
+                <span class="cart-line-total" style="font-weight:700;font-size:.9375rem;">{% if item.product.price_on_request %}Upon discussion{% else %}{{ item.product.currency|currency_symbol }}{{ item.total_price }}{% endif %}</span>
+                <!-- Remove -->
+                <form class="cart-remove" action="{% url 'shop:cart_remove' item.id %}" method="post" onsubmit="return confirm('Remove this item from cart?')">
+                    {% csrf_token %}<button type="submit" class="btn btn-danger btn-sm" title="Remove item" aria-label="Remove {{ item.product.name }} from cart">{% include 'shop/includes/icon.html' with icon='close' %}</button>
+                </form>
+            </div>
+            {% endfor %}
+
+            <!-- Cart footer -->
+            <div style="padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                <a href="{% url 'shop:product_list' %}" class="btn btn-ghost btn-sm">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order summary -->
+    <div>
+        <div class="card" style="padding:1.5rem;position:sticky;top:80px;">
+            <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">Order Summary</h2>
+            {% if mixed_currency %}
+            <p style="padding:.875rem;background:#fff7ed;border:1px solid #fed7aa;border-radius:.75rem;color:#9a3412;font-size:.875rem;line-height:1.5;">
+                Your cart contains BDT and USD items. Complete them as separate orders so each total uses the correct currency.
+            </p>
+            {% else %}
+            <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem;">
+                <div style="display:flex;justify-content:space-between;font-size:.9375rem;color:var(--text-muted);">
+                    <span>Subtotal ({{ cart_items|length }} item{{ cart_items|length|pluralize }})</span>
+                    <span style="font-weight:600;color:var(--text);">{{ cart_currency|currency_symbol }}{{ subtotal }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.9375rem;color:var(--text-muted);">
+                    <span>Shipping</span>
+                    <span style="color:var(--sage-dark);font-weight:600;">Free</span>
+                </div>
+                <hr style="border:none;border-top:1px solid var(--border);margin:.25rem 0;">
+                <div style="display:flex;justify-content:space-between;font-size:1.125rem;font-weight:800;color:var(--text);">
+                    <span>Total</span>
+                    <span>{% if cart_quote_only %}Quote pending{% else %}{{ cart_currency|currency_symbol }}{{ subtotal }}{% if cart_requires_quote %} + quote pending{% endif %}{% endif %}</span>
+                </div>
+            </div>
+            {% if cart_requires_quote %}
+            <p style="margin:0 0 1rem;color:var(--text-muted);font-size:.8125rem;line-height:1.5;">
+                Custom-service pricing is discussed after the order and is not included in this total. Payment details will follow after order placement.
+            </p>
+            {% elif cart_currency == 'USD' %}
+            <p style="margin:0 0 1rem;color:var(--text-muted);font-size:.8125rem;line-height:1.5;">
+                Your order will be recorded in USD. Payment details will be shared after your order is received.
+            </p>
+            {% endif %}
+            <a href="{% url 'shop:checkout' %}" class="btn btn-primary btn-full btn-lg">
+                Proceed to Checkout
+            </a>
+            <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;">
+                {% if cart_currency == 'USD' %}
+                <span style="font-size:.75rem;color:var(--text-muted);">Payment details after order</span>
+                {% else %}
+                <span style="font-size:.75rem;color:var(--text-muted);">{% include 'shop/includes/icon.html' with icon='wallet' %} Cash on Delivery</span>
+                {% endif %}
+                <span style="font-size:.75rem;color:var(--text-muted);">{% include 'shop/includes/icon.html' with icon='shield' %} Secure Checkout</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+@media (min-width: 1024px) {
+    #cart-layout { grid-template-columns: 1fr 340px !important; }
+}
+@media (max-width: 639px) {
+    #cart-layout { grid-template-columns:minmax(0,1fr) !important; }
+    #cart-layout > div { min-width:0; }
+    .cart-table-header { display: none !important; }
+    .cart-row {
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto auto;
+        gap:.75rem !important;
+        padding:1rem !important;
+    }
+    .cart-product { grid-column:1 / -1; }
+    .cart-unit-price { grid-column:1; }
+    .cart-quantity { grid-column:2; grid-row:2; }
+    .cart-line-total { grid-column:1; grid-row:3; }
+    .cart-remove { grid-column:2; grid-row:3; justify-self:end; }
+}
+</style>
+
+{% else %}
+<div class="card" style="padding:4rem;text-align:center;max-width:480px;margin:0 auto;">
+    <div style="font-size:4rem;margin-bottom:1rem;">{% include 'shop/includes/icon.html' with icon='cart' %}</div>
+    <h2 style="font-size:1.375rem;font-weight:700;margin:0 0 .75rem;">Your cart is empty</h2>
+    <p style="color:var(--text-muted);margin:0 0 1.75rem;line-height:1.6;">You haven't added anything yet. Browse our categories to find something you'll love.</p>
+    <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg">Start Shopping</a>
+</div>
+{% endif %}
+
+<script>
+function adjustQtyInCart(btn, delta) {
+    var input = btn.parentElement.querySelector('input[name=quantity]');
+    if (!input) return;
+    var val = parseInt(input.value) || 1;
+    var max = parseInt(input.max, 10) || 1;
+    input.value = Math.max(1, Math.min(max, val + delta));
+    clearTimeout(input._timer);
+    input._timer = setTimeout(function() {
+        btn.parentElement.requestSubmit();
+    }, 600);
+}
+</script>
+{% endblock %}

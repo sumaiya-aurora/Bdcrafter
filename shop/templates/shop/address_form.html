@@ -1,0 +1,53 @@
+{% extends 'shop/base.html' %}
+{% block title %}Address - {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto rounded-3xl bg-white p-8 shadow-sm">
+    <h1 class="text-3xl font-semibold">Save address</h1>
+    <form method="post" class="mt-6 space-y-6">
+        {% csrf_token %}
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Label</label>
+                {{ form.label }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Address type</label>
+                {{ form.address_type }}
+            </div>
+            <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-slate-700">Address line 1</label>
+                {{ form.address_line1 }}
+            </div>
+            <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-slate-700">Address line 2</label>
+                {{ form.address_line2 }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">City</label>
+                {{ form.city }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">State</label>
+                {{ form.state }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Postal code</label>
+                {{ form.postal_code }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Country</label>
+                {{ form.country }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Phone</label>
+                {{ form.phone }}
+            </div>
+            <div class="lg:col-span-2 flex items-center gap-3">
+                {{ form.default }}
+                <label class="text-sm text-slate-700">Mark as default</label>
+            </div>
+        </div>
+        <button type="submit" class="rounded-2xl bg-slate-900 px-6 py-4 text-white">Save address</button>
+    </form>
+</div>
+{% endblock %}

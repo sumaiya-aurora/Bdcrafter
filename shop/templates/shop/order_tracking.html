@@ -1,0 +1,43 @@
+{% extends 'shop/base.html' %}
+{% block title %}Track Your Order — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Check your Bdcrafter.com order status using your order number.{% endblock %}
+
+{% block content %}
+<section style="max-width:680px;margin:2.5rem auto;padding:0 1rem;">
+    <div class="card" style="padding:clamp(1.5rem,5vw,2.5rem);">
+        <div style="text-align:center;margin-bottom:1.75rem;">
+            <div aria-hidden="true" style="font-size:2rem;margin-bottom:.5rem;">{% include 'shop/includes/icon.html' with icon='package' %}</div>
+            <h1 style="font-size:1.75rem;font-weight:800;margin:0 0 .5rem;">Track Your Order</h1>
+            <p style="color:var(--text-muted);margin:0;">Enter the order number from your confirmation or invoice.</p>
+        </div>
+
+        <form method="post" style="display:flex;gap:.75rem;flex-wrap:wrap;">
+            {% csrf_token %}
+            <label for="order-id" class="sr-only">Order ID or order number</label>
+            <input id="order-id" name="order_id" type="text" required maxlength="30"
+                   value="{{ input_order_id }}"
+                   placeholder="Enter order ID or number"
+                   class="form-control" style="flex:1;min-width:220px;text-transform:uppercase;"
+                   autocomplete="off">
+            <button type="submit" class="btn btn-primary">Check Status</button>
+        </form>
+
+        {% if searched %}
+            {% if order %}
+            <div role="status" style="margin-top:1.75rem;padding:1.25rem;border:1px solid var(--border);border-radius:1rem;background:var(--primary-light);">
+                <p style="margin:0 0 .75rem;color:var(--text-muted);font-size:.875rem;">Order #{{ order.order_number }}</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                    <strong style="font-size:1.125rem;">Current status</strong>
+                    <span style="display:inline-block;padding:.45rem .9rem;border-radius:999px;background:#fff;color:var(--primary-dark);font-weight:700;">{{ order.get_status_display }}</span>
+                </div>
+                <p style="margin:.9rem 0 0;color:var(--text-muted);font-size:.875rem;">Last updated {{ order.updated_at|date:"M j, Y, g:i a" }}</p>
+            </div>
+            {% else %}
+            <p role="alert" style="margin-top:1.5rem;padding:1rem;border-radius:.75rem;background:#fff7ed;color:#9a3412;">
+                We couldn’t find an order with that number. Please check the number on your confirmation or invoice and try again.
+            </p>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

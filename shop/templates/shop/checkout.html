@@ -1,0 +1,243 @@
+{% extends 'shop/base.html' %}
+{% load money %}
+{% block title %}Checkout — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}Complete your order at Bdcrafter.com. No account required — guest checkout available.{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;">
+    <h1 style="font-size:1.75rem;font-weight:800;margin:0 0 .5rem;">Checkout</h1>
+    <p style="color:var(--text-muted);font-size:.9375rem;margin:0 0 2rem;">No account required — you can order as a guest.</p>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1.75rem;" id="checkout-layout">
+
+        <!-- Left: Form -->
+        <div>
+            <form method="post" id="checkoutForm">
+                {% csrf_token %}
+
+                <!-- Contact info -->
+                <div class="card" style="padding:1.75rem;margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">{% include 'shop/includes/icon.html' with icon='user' %} Contact Information</h2>
+                    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+                        <div class="checkout-form-row" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_first_name">First Name <span class="required">*</span></label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}<div class="form-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_last_name">Last Name <span class="required">*</span></label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}<div class="form-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" for="id_email">Email Address <span class="required">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}
+                            <p style="font-size:.8125rem;color:var(--text-muted);margin:.375rem 0 0;">Your order confirmation will be sent here.</p>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" for="id_phone">Phone Number <span class="required">*</span></label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<div class="form-error">{{ form.phone.errors.0 }}</div>{% endif %}
+                            <p style="font-size:.8125rem;color:var(--text-muted);margin:.375rem 0 0;">We'll call/text for delivery coordination.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping address -->
+                <div class="card" style="padding:1.75rem;margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">{% include 'shop/includes/icon.html' with icon='map-pin' %} Shipping Address</h2>
+                    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" for="id_shipping_address">Street / Area / Road <span class="required">*</span></label>
+                            {{ form.shipping_address }}
+                            {% if form.shipping_address.errors %}<div class="form-error">{{ form.shipping_address.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="checkout-form-row" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_shipping_city">City <span class="required">*</span></label>
+                                {{ form.shipping_city }}
+                                {% if form.shipping_city.errors %}<div class="form-error">{{ form.shipping_city.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_shipping_state">Division / State</label>
+                                {{ form.shipping_state }}
+                            </div>
+                        </div>
+                        <div class="checkout-form-row" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_shipping_postal_code">Postal Code</label>
+                                {{ form.shipping_postal_code }}
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" for="id_shipping_country">Country</label>
+                                {{ form.shipping_country }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment method -->
+                <div class="card" style="padding:1.75rem;margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">{% include 'shop/includes/icon.html' with icon='wallet' %} Payment Method</h2>
+                    {% if cart_currency == 'USD' %}
+                    {{ form.payment_method.as_hidden }}
+                    <p style="margin:0;color:var(--text-muted);font-size:.875rem;line-height:1.6;">
+                        Payment details will be shared after your service order is received.
+                    </p>
+                    {% else %}
+                    <div style="display:flex;flex-direction:column;gap:.75rem;">
+                        {% for choice_val, choice_label in form.payment_method.field.choices %}
+                        <label style="
+                            display:flex;align-items:center;gap:.875rem;
+                            padding:1rem 1.25rem;
+                            border:1.5px solid var(--border);
+                            border-radius:.875rem;
+                            cursor:pointer;
+                            transition:border-color .2s, background .2s;
+                            user-select:none;
+                        " id="payment-label-{{ forloop.counter }}">
+                            <input type="radio" name="payment_method" value="{{ choice_val }}" id="payment-{{ forloop.counter }}"
+                                {% if choice_val == 'cod' %}checked{% endif %}
+                                onchange="highlightPayment()"
+                                style="width:18px;height:18px;accent-color:var(--primary);"
+                                {% if choice_val != 'cod' %}disabled title="Coming soon"{% endif %}>
+                            <div>
+                                <span style="font-weight:600;font-size:.9375rem;">
+                                    {{ choice_label }}
+                                </span>
+                                {% if choice_val != 'cod' %}
+                                    <span style="display:block;font-size:.75rem;color:var(--text-muted);">Coming soon</span>
+                                {% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Coupon & Notes -->
+                <div class="card" style="padding:1.75rem;margin-bottom:1.5rem;">
+                    <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">{% include 'shop/includes/icon.html' with icon='clipboard' %} Additional Info</h2>
+                    {% if cart_currency == 'BDT' %}
+                    <div class="form-group">
+                        <label class="form-label" for="id_coupon_code">Coupon Code (optional)</label>
+                        <div style="display:flex;gap:.75rem;align-items:center;">
+                            {{ form.coupon_code }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" for="id_order_notes">Order Notes (optional)</label>
+                        {{ form.order_notes }}
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary btn-lg btn-full" id="placeOrderBtn">
+                    {% include 'shop/includes/icon.html' with icon='check-circle' %} {% if cart_currency == 'USD' %}Place Service Order{% else %}Place Order{% endif %}
+                </button>
+                <p style="text-align:center;font-size:.8125rem;color:var(--text-muted);margin-top:.75rem;">
+                    By placing an order, you agree to our <a href="{% url 'shop:terms' %}" style="color:var(--primary);">Terms & Conditions</a>.
+                </p>
+            </form>
+        </div>
+
+        <!-- Right: Order summary -->
+        <div>
+            <div class="card" style="padding:1.5rem;position:sticky;top:80px;">
+                <h2 style="font-size:1.125rem;font-weight:700;margin:0 0 1.25rem;">Order Summary</h2>
+
+                <div style="display:flex;flex-direction:column;gap:.875rem;margin-bottom:1.25rem;">
+                    {% for item in cart_items %}
+                    <div style="display:flex;align-items:center;gap:.875rem;">
+                        <div style="width:52px;height:52px;border-radius:.625rem;overflow:hidden;flex-shrink:0;border:1px solid var(--border);">
+                            {% with img=item.product.primary_image %}
+                                {% if img %}
+                                    <img src="{{ img.image.url }}" alt="{{ item.product.name }}" style="width:100%;height:100%;object-fit:cover;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M10 7V4h4v3"/><path d="M9 4h6"/></svg></div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-weight:600;margin:0;font-size:.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.product.name }}</p>
+                            {% if item.variant %}<p style="margin:.125rem 0 0;font-size:.75rem;color:var(--text-muted);">{{ item.variant.name }}</p>{% endif %}
+                            <p style="margin:.125rem 0 0;font-size:.75rem;color:var(--text-muted);">Qty: {{ item.quantity }}</p>
+                        </div>
+                        <span style="font-weight:700;font-size:.9375rem;white-space:nowrap;">{% if item.product.price_on_request %}Upon discussion{% else %}{{ item.product.currency|currency_symbol }}{{ item.total_price }}{% endif %}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr style="border:none;border-top:1px solid var(--border);margin:.5rem 0 1rem;">
+
+                <div style="display:flex;flex-direction:column;gap:.625rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:.9375rem;color:var(--text-muted);">
+                        <span>Subtotal</span>
+                        <span style="font-weight:600;color:var(--text);">{{ cart_currency|currency_symbol }}{{ subtotal }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:.9375rem;color:var(--text-muted);">
+                        <span>Shipping</span>
+                        {% if shipping_cost > 0 %}
+                            <span style="font-weight:600;color:var(--text);">{{ cart_currency|currency_symbol }}{{ shipping_cost }}</span>
+                        {% else %}
+                            <span style="color:var(--sage-dark);font-weight:600;">Free</span>
+                        {% endif %}
+                    </div>
+                    <hr style="border:none;border-top:1px solid var(--border);margin:.25rem 0;">
+                    <div style="display:flex;justify-content:space-between;font-size:1.125rem;font-weight:800;">
+                        <span>Total</span>
+                        <span>{% if cart_quote_only %}Quote pending{% else %}{{ cart_currency|currency_symbol }}{{ total }}{% if cart_requires_quote %} + quote pending{% endif %}{% endif %}</span>
+                    </div>
+                </div>
+
+                {% if cart_requires_quote %}
+                <p style="margin:1rem 0 0;padding:1rem;background:#fff7ed;border:1px solid #fed7aa;border-radius:.75rem;color:#9a3412;font-size:.8125rem;line-height:1.6;">
+                    Custom-service pricing is discussed after the order. The total above excludes the custom quote; payment details will be shared after the final scope is agreed.
+                </p>
+                {% elif cart_currency == 'USD' %}
+                <p style="margin:1rem 0 0;color:var(--text-muted);font-size:.8125rem;line-height:1.6;">
+                    This order is recorded in USD. Payment details will be shared after order placement.
+                </p>
+                {% else %}
+                <div style="margin-top:1.25rem;padding:1rem;background:var(--sage-muted);border-radius:.75rem;border:1px solid #bbf7d0;">
+                    <p style="margin:0;font-size:.8125rem;color:#166534;font-weight:500;">
+                        <strong>Cash on Delivery</strong> — Pay when you receive your order. No advance payment needed.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (min-width: 1024px) {
+    #checkout-layout { grid-template-columns: 1fr 360px !important; }
+}
+@media (max-width: 420px) {
+    #checkoutForm > .card { padding:1.125rem !important; }
+    .checkout-form-row { grid-template-columns:1fr !important; }
+}
+</style>
+
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    var btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order...';
+});
+
+function highlightPayment() {
+    document.querySelectorAll('[id^="payment-label-"]').forEach(function(label) {
+        var radio = label.querySelector('input[type=radio]');
+        label.style.borderColor = radio && radio.checked ? 'var(--primary)' : 'var(--border)';
+        label.style.background = radio && radio.checked ? 'var(--primary-light)' : '';
+    });
+}
+document.addEventListener('DOMContentLoaded', highlightPayment);
+</script>
+{% endblock %}

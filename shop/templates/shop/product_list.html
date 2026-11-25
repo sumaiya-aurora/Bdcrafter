@@ -1,0 +1,241 @@
+{% extends 'shop/base.html' %}
+{% load money %}
+{% block title %}{% if selected_category_name %}{{ selected_category_name }} — {% endif %}Shop — {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block meta_description %}{% if selected_category_description %}{{ selected_category_description|striptags|truncatechars:155 }}{% else %}Shop products and digital services online in Bangladesh. Browse the latest listings, compare prices, and check availability at Bdcrafter.com.{% endif %}{% endblock %}
+{% block og_title %}{% if selected_category_name %}{{ selected_category_name }} — {% endif %}Shop Online | {{ STORE_NAME|default:'Bdcrafter.com' }}{% endblock %}
+{% block og_description %}{% if selected_category_description %}{{ selected_category_description|striptags|truncatechars:155 }}{% else %}Shop products and digital services online in Bangladesh. Browse the latest listings, compare prices, and check availability at Bdcrafter.com.{% endif %}{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr;gap:1.25rem;width:100%;max-width:100%;box-sizing:border-box;" id="shop-layout">
+
+    <!-- Filter toggle (mobile) -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;width:100%;">
+        <h1 style="font-size:1.35rem;font-weight:800;margin:0;color:var(--text);letter-spacing:-0.02em;">
+            {% if selected_category_name %}{{ selected_category_name }}{% else %}Shop All Products{% endif %}{% if query %} — "<em>{{ query }}</em>"{% endif %}
+        </h1>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+            <span style="font-size:.8125rem;color:var(--text-muted);">{{ product_count }} product{{ product_count|pluralize }}</span>
+            <button id="filterToggle" class="btn btn-ghost btn-sm" style="display:flex;align-items:center;gap:.375rem;" aria-expanded="false" aria-controls="filterPanel">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+                Filters
+            </button>
+        </div>
+    </div>
+    {% if selected_category_description %}
+    <p style="max-width:760px;margin:0;color:var(--text-muted);line-height:1.65;">{{ selected_category_description }}</p>
+    {% endif %}
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1.25rem;width:100%;max-width:100%;box-sizing:border-box;" id="shopGrid">
+
+        <!-- Filters panel -->
+        <aside id="filterPanel" class="card" style="padding:1.25rem;display:none;box-sizing:border-box;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <h2 style="font-size:1rem;font-weight:700;margin:0;">Filters</h2>
+                <a href="{% url 'shop:product_list' %}" style="font-size:.8125rem;color:var(--sage);text-decoration:none;" title="Clear all filters">Clear all</a>
+            </div>
+            <form method="get" id="filterForm">
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+                <div class="form-group">
+                    <label class="form-label" for="filter-category">Category</label>
+                    <select name="category" id="filter-category" class="form-control" onchange="this.form.submit()">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if subcategories %}
+                <div class="form-group">
+                    <label class="form-label" for="filter-subcategory">{{ selected_category_name }} Collection</label>
+                    <select name="subcategory" id="filter-subcategory" class="form-control" onchange="this.form.submit()">
+                        <option value="">All {{ selected_category_name }}</option>
+                        {% for subcategory in subcategories %}
+                            <option value="{{ subcategory.slug }}" {% if selected_subcategory == subcategory.slug %}selected{% endif %}>{{ subcategory.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% if brands %}
+                <div class="form-group">
+                    <label class="form-label" for="filter-brand">Brand</label>
+                    <select name="brand" id="filter-brand" class="form-control" onchange="this.form.submit()">
+                        <option value="">All brands</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Price range{% if selected_category_obj %} ({% if selected_category_obj.slug == 'digital-services' %}USD{% else %}BDT{% endif %}){% else %} (mixed currencies){% endif %}</label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+                        <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}" class="form-control" min="0" aria-label="Minimum price">
+                        <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}" class="form-control" min="0" aria-label="Maximum price">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="filter-sort">Sort by</label>
+                    <select name="sort" id="filter-sort" class="form-control" onchange="this.form.submit()">
+                        <option value="">Default</option>
+                        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest first</option>
+                        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="best_selling" {% if request.GET.sort == 'best_selling' %}selected{% endif %}>Best Selling</option>
+                        <option value="highest_rated" {% if request.GET.sort == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Apply Filters</button>
+            </form>
+        </aside>
+
+        <!-- Products section -->
+        <section style="width:100%;min-width:0;box-sizing:border-box;">
+            {% if categories %}
+            <nav aria-label="Filter by category" style="display:flex;gap:.375rem;overflow-x:auto;margin-bottom:1rem;padding-bottom:.25rem;white-space:nowrap;width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+                <a href="{% url 'shop:product_list' %}" class="btn btn-sm {% if not selected_category %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">All</a>
+                {% for category in categories %}
+                <a href="{{ category.get_absolute_url }}" class="btn btn-sm {% if selected_category == category.slug %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">{{ category.name }}</a>
+                {% endfor %}
+            </nav>
+            {% endif %}
+
+            {% if selected_category %}
+            <nav aria-label="Filter by collection" style="display:flex;gap:.375rem;overflow-x:auto;margin-bottom:1rem;padding-bottom:.25rem;white-space:nowrap;width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+                <a href="{% url 'shop:product_list' %}?category={{ selected_category }}" class="btn btn-sm {% if not selected_subcategory %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">All {{ selected_category_name }}</a>
+                {% if selected_category == 'kushikata' %}
+                <a href="{% url 'shop:product_list' %}?category=kushikata&subcategory=traditional" class="btn btn-sm {% if selected_subcategory == 'traditional' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Traditional</a>
+                <a href="{% url 'shop:product_list' %}?category=kushikata&subcategory=handicrafts" class="btn btn-sm {% if selected_subcategory == 'handicrafts' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Handicrafts</a>
+                <a href="{% url 'shop:product_list' %}?category=kushikata&subcategory=textiles" class="btn btn-sm {% if selected_subcategory == 'textiles' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Textiles</a>
+                {% elif selected_category == 'gadgets' %}
+                <a href="{% url 'shop:product_list' %}?category=gadgets&subcategory=mobile-accessories" class="btn btn-sm {% if selected_subcategory == 'mobile-accessories' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Mobile Accessories</a>
+                <a href="{% url 'shop:product_list' %}?category=gadgets&subcategory=audio" class="btn btn-sm {% if selected_subcategory == 'audio' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Audio</a>
+                <a href="{% url 'shop:product_list' %}?category=gadgets&subcategory=power-charging" class="btn btn-sm {% if selected_subcategory == 'power-charging' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Power &amp; Charging</a>
+                {% elif selected_category == 'digital-services' %}
+                <a href="{% url 'shop:product_list' %}?category=digital-services&subcategory=website-services" class="btn btn-sm {% if selected_subcategory == 'website-services' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Website Services</a>
+                <a href="{% url 'shop:product_list' %}?category=digital-services&subcategory=design-services" class="btn btn-sm {% if selected_subcategory == 'design-services' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Design Services</a>
+                <a href="{% url 'shop:product_list' %}?category=digital-services&subcategory=marketing-services" class="btn btn-sm {% if selected_subcategory == 'marketing-services' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Marketing</a>
+                {% elif selected_category == 'clothes' %}
+                <a href="{% url 'shop:product_list' %}?category=clothes&subcategory=men" class="btn btn-sm {% if selected_subcategory == 'men' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Men</a>
+                <a href="{% url 'shop:product_list' %}?category=clothes&subcategory=women" class="btn btn-sm {% if selected_subcategory == 'women' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Women</a>
+                <a href="{% url 'shop:product_list' %}?category=clothes&subcategory=accessories" class="btn btn-sm {% if selected_subcategory == 'accessories' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Accessories</a>
+                {% elif selected_category == 'perfume' %}
+                <a href="{% url 'shop:product_list' %}?category=perfume&subcategory=casual-scents" class="btn btn-sm {% if selected_subcategory == 'casual-scents' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Casual Scents</a>
+                <a href="{% url 'shop:product_list' %}?category=perfume&subcategory=elite-section" class="btn btn-sm {% if selected_subcategory == 'elite-section' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Elite Section</a>
+                <a href="{% url 'shop:product_list' %}?category=perfume&subcategory=high-end" class="btn btn-sm {% if selected_subcategory == 'high-end' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">High-End</a>
+                <a href="{% url 'shop:product_list' %}?category=perfume&subcategory=elegant-collection" class="btn btn-sm {% if selected_subcategory == 'elegant-collection' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Elegant</a>
+                {% elif selected_category == 'organic-store' %}
+                <a href="{% url 'shop:product_list' %}?category=organic-store&subcategory=organic-food" class="btn btn-sm {% if selected_subcategory == 'organic-food' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Organic Food</a>
+                <a href="{% url 'shop:product_list' %}?category=organic-store&subcategory=organic-oils" class="btn btn-sm {% if selected_subcategory == 'organic-oils' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Organic Oils</a>
+                <a href="{% url 'shop:product_list' %}?category=organic-store&subcategory=natural-care" class="btn btn-sm {% if selected_subcategory == 'natural-care' %}btn-primary{% else %}btn-ghost{% endif %}" style="white-space:nowrap;">Natural Care</a>
+                {% endif %}
+            </nav>
+            {% endif %}
+
+            <!-- Compact 2-Column Product Grid -->
+            {% if products %}
+            <div class="product-grid-2col">
+                {% for product in products %}
+                <article class="product-card">
+                    <a href="{{ product.get_absolute_url }}" class="product-card-img-wrap">
+                        {% with featured_image=product.featured_image %}
+                            {% if featured_image %}
+                                <img src="{{ featured_image.image.url }}" alt="{{ featured_image.alt_text|default:product.name }}" class="product-card-img" loading="lazy">
+                            {% else %}
+                                <div class="product-card-img-placeholder">
+                                    {% include 'shop/includes/category_icon.html' with category_slug=product.category.slug %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                    <div class="product-card-body">
+                        {% if not product.is_digital_service and not product.is_in_stock %}
+                            <span class="product-badge badge-oos">Out of Stock</span>
+                        {% elif product.sale_price %}
+                            <span class="product-badge badge-sale">Sale</span>
+                        {% endif %}
+                        <h2 class="product-card-title">
+                            <a href="{{ product.get_absolute_url }}" title="{{ product.name }}">{{ product.name }}</a>
+                        </h2>
+                        {% if product.brand %}
+                            <p class="product-card-brand">{{ product.brand.name }}</p>
+                        {% endif %}
+                        <div class="product-card-footer">
+                            <div class="product-card-price-wrap">
+                                <span class="product-price-current">{% if product.price_on_request %}Upon discussion{% else %}{{ product.currency|currency_symbol }}{{ product.price_display }}{% endif %}</span>
+                                {% if product.sale_price and not product.price_on_request %}
+                                    <span class="product-price-old">{{ product.currency|currency_symbol }}{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ product.get_absolute_url }}" class="product-card-btn">{% if product.is_digital_service %}Book Now{% else %}View{% endif %}</a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Product pages" style="display:flex;justify-content:center;align-items:center;gap:.375rem;flex-wrap:wrap;margin-top:2rem;">
+                {% if page_obj.has_previous %}<a class="btn btn-ghost btn-sm" href="?{{ pagination_query }}page={{ page_obj.previous_page_number }}" aria-label="Previous page">Previous</a>{% endif %}
+                <span style="font-size:.8125rem;color:var(--text-muted);padding:0 .25rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}<a class="btn btn-ghost btn-sm" href="?{{ pagination_query }}page={{ page_obj.next_page_number }}" aria-label="Next page">Next</a>{% endif %}
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="card" style="padding:2.5rem 1.5rem;text-align:center;">
+                <div style="font-size:2.5rem;margin-bottom:.75rem;">{% include 'shop/includes/icon.html' with icon='search' %}</div>
+                <h2 style="font-size:1.15rem;font-weight:700;margin:0 0 .375rem;">No products found</h2>
+                <p style="color:var(--text-muted);font-size:.875rem;margin:0 0 1.25rem;">Try adjusting your filters or search query.</p>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-sm">Browse all products</a>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+<script>
+(function() {
+    var toggle = document.getElementById('filterToggle');
+    var panel = document.getElementById('filterPanel');
+    var grid = document.getElementById('shopGrid');
+
+    // Show filters by default on larger screens
+    function checkWidth() {
+        if (window.innerWidth >= 768) {
+            panel.style.display = 'block';
+            grid.style.gridTemplateColumns = '240px 1fr';
+            toggle.style.display = 'none';
+        } else {
+            if (!panel.classList.contains('mobile-open')) {
+                panel.style.display = 'none';
+            }
+            grid.style.gridTemplateColumns = '1fr';
+            toggle.style.display = 'flex';
+        }
+    }
+
+    toggle.addEventListener('click', function() {
+        var isOpen = panel.classList.contains('mobile-open');
+        if (isOpen) {
+            panel.classList.remove('mobile-open');
+            panel.style.display = 'none';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg> Filters';
+        } else {
+            panel.classList.add('mobile-open');
+            panel.style.display = 'block';
+            toggle.setAttribute('aria-expanded', 'true');
+        }
+    });
+
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+})();
+</script>
+{% endblock %}
